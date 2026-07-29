@@ -51,6 +51,25 @@
   }
   .prob-display .hi { color: #2c5fb3; font-weight: 700; }
   .prob-display .hiB { color: #b3412c; }
+
+  /* ── Venn zoom widget ── */
+  .venn-legend {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 0.9rem;
+    margin-top: 0.9rem;
+    font-family: var(--mono); font-size: 0.78rem; color: var(--muted);
+  }
+  .venn-legend .chip {
+    display: inline-block; width: 0.85em; height: 0.85em; border-radius: 3px;
+    margin-right: 0.35em; vertical-align: middle; border: 1px solid var(--border);
+  }
+  .chip-aonly { background: rgba(179,65,44,0.18); border-color: #b3412c; }
+  .chip-bonly { background: #dbeafe; border-color: #93c5fd; }
+  .chip-ab    { background: #2c5fb3; border-color: #1e40af; }
+  .venn-controls { text-align: center; margin-top: 0.9rem; }
+  .venn-readout {
+    text-align: center; font-family: var(--mono); font-size: 0.85rem;
+    margin-top: 0.7rem; line-height: 1.55; min-height: 2.6em;
+  }
 </style>
 </head>
 <body>
@@ -125,7 +144,68 @@ just "the fraction of B that is also in A" — which is P(A∩B) divided by P(B)
 B is the new 100% — so you normalize by P(B) to make the probabilities sum to 1 again.
 Same reason you divide by <code>B.length</code>, not <code>outcomes.length</code>, after filtering.</div>
 
-<h2>3 · See it on two dice</h2>
+<h2>3 · Picture it: watch Ω shrink to B</h2>
+
+<p>Numbers are precise, but your eye should see this before it computes anything. Below, Ω is
+the box, and A and B are two overlapping regions inside it — the same "types are sets" picture
+<a href="https://type-level-typescript.com">Type-Level TypeScript</a> uses to explain unions,
+intersections, and narrowing. Press the button and watch what "conditioning on B" really does:
+<strong>the view zooms into B, and B becomes the new Ω.</strong></p>
+
+<div class="widget">
+  <h4>Ω, A, B, and A∩B — then conditioning</h4>
+  <svg id="venn" viewBox="0 0 400 280" style="width:100%;max-width:460px;display:block;margin:0 auto">
+    <defs>
+      <clipPath id="clipB">
+        <circle cx="175" cy="150" r="105"/>
+      </clipPath>
+    </defs>
+    <rect id="omegaRect" x="10" y="10" width="380" height="260" rx="16"
+          fill="#f7f6ee" stroke="#e0ded2" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <text id="omegaLabel" x="26" y="36" font-style="italic" font-size="16" fill="#767676">Ω</text>
+
+    <circle cx="258" cy="140" r="80" fill="#b3412c" fill-opacity="0.16" stroke="#b3412c" stroke-width="2"/>
+    <circle cx="175" cy="150" r="105" fill="#dbeafe" stroke="#93c5fd" stroke-width="2"/>
+    <g clip-path="url(#clipB)">
+      <circle cx="258" cy="140" r="80" fill="#2c5fb3"/>
+    </g>
+    <circle cx="258" cy="140" r="80" fill="none" stroke="#b3412c" stroke-width="2"/>
+
+    <text x="103" y="98" font-size="16" fill="#1e40af" font-weight="700">B</text>
+    <text x="325" y="118" font-size="16" fill="#b3412c" font-weight="700">A</text>
+  </svg>
+
+  <div class="venn-legend">
+    <span><span class="chip chip-aonly"></span>A only</span>
+    <span><span class="chip chip-bonly"></span>B only</span>
+    <span><span class="chip chip-ab"></span>A ∩ B</span>
+  </div>
+
+  <div class="venn-controls">
+    <button id="vennToggle" class="primary">Condition on B →</button>
+  </div>
+  <div class="venn-readout" id="vennReadout">
+    Unconditioned: Ω is the whole box, and A∩B (dark blue) is whatever sliver of it satisfies both events.
+  </div>
+</div>
+
+<p>Nothing about A or B changed shape or size when you clicked. The <em>only</em> thing that
+changed is which box counts as 100%. That rescaling — old Ω to new B — is the entire content
+of dividing by P(B) in the trophy formula above: same dark region, smaller denominator.</p>
+
+<div class="notation-card">
+  <div class="symbol">A &amp; B &nbsp;<span style="font-size:0.55em;color:var(--muted)">(TypeScript's intersection type — the same ∩)</span></div>
+  <div class="plain"><strong>Plain language:</strong> when A and B are unions of literal outcomes, TypeScript's <code>&amp;</code> operator computes exactly A∩B — it distributes over the union and keeps only the literals both types share, discarding the rest as <code>never</code>.</div>
+  <div class="code-analogy"><span class="kw">type</span> A = <span class="str">'HH'</span> | <span class="str">'HT'</span> | <span class="str">'TH'</span>;  <span class="cm">// event A</span><br><span class="kw">type</span> B = <span class="str">'HH'</span> | <span class="str">'HT'</span>;         <span class="cm">// event B</span><br><span class="kw">type</span> AandB = A &amp; B;             <span class="cm">// resolves to 'HH' | 'HT' — literally A ∩ B</span></div>
+</div>
+
+<div class="aside">This is the same lens <a href="https://type-level-typescript.com">Type-Level TypeScript</a>
+uses for the whole type system: a type <em>is</em> a set of values, <code>|</code> is union, <code>&amp;</code>
+is intersection, and narrowing (<code>if</code>, <code>as</code>, discriminated unions) is exactly what
+you just watched the diagram do above — shrinking the universe down to a subset once you learn
+something is true.</div>
+
+<h2>4 · See it on two dice</h2>
 
 <p>From your learning record: two dice → 36 outcomes (6 × 6 Cartesian product). Each cell
 below is one outcome (die₁, die₂). Pick events B and A using the controls — watch Ω
@@ -154,7 +234,7 @@ shrink to B, then see how much of B is covered by A.</p>
   Choose events above to see P(A | B) computed step by step.
 </div>
 
-<h2>4 · Why this matters for decisions</h2>
+<h2>5 · Why this matters for decisions</h2>
 
 <p>Here's where conditional probability becomes a superpower. Suppose you take a medical
 test for a rare disease. The test comes back <strong>positive</strong>. Should you panic?</p>
@@ -172,18 +252,22 @@ Working it out precisely requires one more algebraic step — and that step is
 if the disease is rare enough. We'll compute the exact number in Lesson 3 and it will
 surprise you.</div>
 
-<h2>5 · Check your retrieval</h2>
+<h2>6 · Check your retrieval</h2>
 
 <div id="q1"></div>
 <div id="q2"></div>
 <div id="q3"></div>
 
-<h2>6 · Go deeper</h2>
+<h2>7 · Go deeper</h2>
 
 <p><strong>Primary source:</strong>
 <a href="https://seeing-theory.brown.edu/compound-probability/index.html">Seeing Theory, Chapter 2: Compound Probability</a> —
 interactive Venn diagrams for A∩B, A∪B, and conditional probability.
 Spend 5 minutes dragging the sliders.</p>
+
+<p><strong>Also worth a look:</strong> <a href="https://type-level-typescript.com">Type-Level TypeScript</a> —
+teaches TypeScript's type system as set theory (unions, intersections, narrowing). If the Venn
+widget above clicked for you, this is the same mental model applied to types you already write.</p>
 
 <div class="ask-reminder">💬 <strong>Stuck or curious?</strong> Ask the agent — "why can't you condition on P(B)=0?",
 "what does A∪B mean?", "show me a real decision where ignoring base rates cost someone money". Follow-up is where the insights live.</div>
@@ -199,6 +283,51 @@ Spend 5 minutes dragging the sliders.</p>
 <script src="../assets/prism-typescript.min.js"></script>
 <script src="../assets/quiz.js"></script>
 <script>
+// ── Venn zoom widget ──────────────────────────────────────
+(function () {
+  const svg = document.getElementById('venn');
+  const toggleBtn = document.getElementById('vennToggle');
+  const readout = document.getElementById('vennReadout');
+  const omegaLabel = document.getElementById('omegaLabel');
+
+  const FULL = [0, 0, 400, 280];   // the whole box
+  const ZOOM = [3, 29, 345, 242];  // cropped tight around B, same aspect ratio
+
+  let conditioned = false;
+  let rafId = null;
+
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  function animateTo(target, duration) {
+    if (rafId) cancelAnimationFrame(rafId);
+    const box = svg.viewBox.baseVal;
+    const from = [box.x, box.y, box.width, box.height];
+    const startTime = performance.now();
+
+    function step(now) {
+      const t = Math.min(1, (now - startTime) / duration);
+      const e = easeInOutCubic(t);
+      const current = from.map((v, i) => v + (target[i] - v) * e);
+      svg.setAttribute('viewBox', current.join(' '));
+      if (t < 1) rafId = requestAnimationFrame(step);
+    }
+    rafId = requestAnimationFrame(step);
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    conditioned = !conditioned;
+    animateTo(conditioned ? ZOOM : FULL, 650);
+    omegaLabel.style.transition = 'opacity 0.4s';
+    omegaLabel.style.opacity = conditioned ? '0' : '1';
+    toggleBtn.textContent = conditioned ? '← Back to full Ω' : 'Condition on B →';
+    readout.textContent = conditioned
+      ? 'Conditioned: B is now the entire frame — the old Ω is gone. A∩B (dark blue) is some fraction of THIS box, and that fraction is exactly P(A | B).'
+      : 'Unconditioned: Ω is the whole box, and A∩B (dark blue) is whatever sliver of it satisfies both events.';
+  });
+})();
+
 // ── Two-dice grid ─────────────────────────────────────────
 const grid = document.getElementById('dice-grid');
 const probDisplay = document.getElementById('prob-display');

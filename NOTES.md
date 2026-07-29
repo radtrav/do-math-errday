@@ -17,3 +17,4 @@
 ## Working Notes
 
 - 2026-07-28: Workspace initialized. Started with Lesson 1 (probability as measure, sample spaces). Next candidates: conditional probability → Bayes, then expected value.
+- 2026-07-29: Positive feedback on Lesson 2 and the set analogies specifically — likened them to [Type-Level TypeScript](https://type-level-typescript.com)'s "types as sets" teaching style. Added an interactive Venn/zoom widget to Lesson 2 (Ω/A/B/A∩B, with a "condition on B" toggle that visually zooms the camera into B so the sample-space-shrinking is literal, not just described) plus a TS `&`-as-∩ notation card. Takeaway: lean harder into "sets" as the unifying visual across lessons, and keep surfacing TS type-operator analogies (`|`/`&`/narrowing) alongside the probability notation — this learner responds strongly to that bridge.
