@@ -132,6 +132,57 @@ pre {
 .widget button.primary { background: var(--info); color: white; }
 .widget .readout { font-family: var(--mono); font-size: 0.85rem; margin-top: 0.6rem; }
 
+/* ── Code challenge (runnable editor + tests) ── */
+.code-challenge .challenge-prompt { margin: 0 0 0.9rem; }
+.challenge-editor {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  tab-size: 2;
+  padding: 0.9rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #1a1a1a;
+  background: #2d2d2d;
+  color: #e0e0e0;
+  resize: vertical;
+}
+.challenge-editor:focus { outline: 2px solid var(--info); outline-offset: 1px; }
+.challenge-controls { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.9rem; }
+.challenge-output { margin-top: 0.9rem; }
+.challenge-test {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  padding: 0.5rem 0.75rem;
+  margin: 0.35rem 0;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: white;
+}
+.challenge-test .label { color: var(--ink); }
+.challenge-test .actual { color: var(--muted); text-align: right; }
+.challenge-test.pass { border-color: var(--ok); background: #edf7ed; }
+.challenge-test.fail { border-color: var(--bad); background: #fdeeee; }
+.challenge-summary { margin-top: 0.7rem; font-weight: 700; font-family: var(--mono); font-size: 0.88rem; }
+.challenge-summary.all-pass { color: var(--ok); }
+.challenge-error {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  white-space: pre-wrap;
+  color: var(--bad);
+  background: #fdeeee;
+  border: 1px solid var(--bad);
+  border-radius: 6px;
+  padding: 0.6rem 0.85rem;
+}
+.challenge-solution { margin-top: 0.9rem; }
+.challenge-solution pre { margin: 0.4rem 0 0; }
+
 /* ── Quiz ── */
 .quiz { margin: 1.5rem 0; }
 .quiz .question { font-weight: 700; margin-bottom: 0.6rem; }
