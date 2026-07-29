@@ -234,6 +234,11 @@ shrink to B, then see how much of B is covered by A.</p>
   Choose events above to see P(A | B) computed step by step.
 </div>
 
+<p>You've seen it in a code snippet, in a Venn diagram, and in a grid of 36 cells. Now write it
+yourself — the same formula, as a real function you can run.</p>
+
+<div class="code-challenge" data-challenge></div>
+
 <h2>5 · Why this matters for decisions</h2>
 
 <p>Here's where conditional probability becomes a superpower. Suppose you take a medical
@@ -282,7 +287,32 @@ widget above clicked for you, this is the same mental model applied to types you
 <script src="../assets/prism.min.js"></script>
 <script src="../assets/prism-typescript.min.js"></script>
 <script src="../assets/quiz.js"></script>
+<script src="../assets/code-challenge.js"></script>
 <script>
+// ── Code challenge: Trophy № 2 ────────────────────────────
+renderCodeChallenges([
+  {
+    el: '[data-challenge]',
+    title: '💻 Code it — conditional probability',
+    prompt: 'Implement <code>conditionalProbability(A, B)</code>: given two events as arrays of ' +
+      'outcomes, return P(A | B) = |A ∩ B| / |B|. Notice Ω never appears in the signature — ' +
+      'conditioning only ever needs A and B.',
+    fnName: 'conditionalProbability',
+    starter: `function conditionalProbability(A, B) {
+  // filter B down to the outcomes also in A, then divide by |B|
+}`,
+    solution: `function conditionalProbability(A, B) {
+  const intersection = B.filter(x => A.includes(x));
+  return intersection.length / B.length;
+}`,
+    tests: [
+      { args: [['HH'], ['HH', 'HT']], expected: 0.5, label: 'P(both heads | coin₁ heads)' },
+      { args: [[25], [21, 22, 23, 24, 25, 26]], expected: 1 / 6, label: 'P(sum=7 | die₁=2) — same as Q1 below' },
+      { args: [[], ['x', 'y']], expected: 0, label: 'P(∅ | B) — impossible stays impossible' },
+    ],
+  },
+]);
+
 // ── Venn zoom widget ──────────────────────────────────────
 (function () {
   const svg = document.getElementById('venn');

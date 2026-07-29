@@ -89,7 +89,9 @@ simple implementation — and it's your first trophy:</p>
 </div>
 
 <p>So P(even) = |{2,4,6}| / |{1,2,3,4,5,6}| = 3/6 = <strong>0.5</strong>. Theory says 0.5.
-But does the universe agree? Let's check.</p>
+But does the universe agree? Let's check — right after you write the formula yourself.</p>
+
+<div class="code-challenge" data-challenge></div>
 
 <h2>4 · Run the experiment</h2>
 
@@ -149,7 +151,32 @@ For the philosophy of "probability as area", watch
 <script src="../assets/prism.min.js"></script>
 <script src="../assets/prism-typescript.min.js"></script>
 <script src="../assets/quiz.js"></script>
+<script src="../assets/code-challenge.js"></script>
 <script>
+// ── Code challenge: Trophy № 1 ────────────────────────────
+renderCodeChallenges([
+  {
+    el: '[data-challenge]',
+    title: '💻 Code it — classical probability',
+    prompt: 'Implement <code>P(A, omega)</code>: given an event <code>A</code> (an array of ' +
+      'outcomes) and the sample space <code>omega</code> (an array of all outcomes), return ' +
+      '|A| / |Ω| — Trophy № 1, exactly as written above.',
+    fnName: 'P',
+    starter: `function P(A, omega) {
+  // return the fraction of omega's outcomes that are in A
+}`,
+    solution: `function P(A, omega) {
+  return A.length / omega.length;
+}`,
+    tests: [
+      { args: [[2, 4, 6], [1, 2, 3, 4, 5, 6]], expected: 0.5, label: 'P(even) on one die' },
+      { args: [[1], [1, 2, 3, 4, 5, 6]], expected: 1 / 6, label: 'P(rolling exactly 1)' },
+      { args: [[1, 2, 3, 4, 5, 6], [1, 2, 3, 4, 5, 6]], expected: 1, label: 'P(Ω) — the whole space' },
+      { args: [[], [1, 2, 3, 4, 5, 6]], expected: 0, label: 'P(∅) — the impossible event' },
+    ],
+  },
+]);
+
 // ── Dice Lab ──────────────────────────────────────────────
 const state = { rolls: 0, evens: 0, history: [] };
 const readout = document.getElementById('readout');
