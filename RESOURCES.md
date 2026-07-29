@@ -6,6 +6,10 @@
 - **[3Blue1Brown — Probability lessons](https://www.3blue1brown.com/topics/probability)** — Grant Sanderson's animated math. The [Bayes' theorem lesson](https://www.3blue1brown.com/lessons/bayes-theorem/) is the canonical visual explanation of Bayesian updating. Trust: very high.
 - **[The Probability Tutoring Book](https://www.goodreads.com/book/show/8714626)** (Carol Ash) — intuitive course written specifically for engineers/scientists; worked examples, diagrams, and common-mistake warnings. Trust: high (long-standing recommendation for rusty engineers).
 
+## TypeScript-as-sets bridge
+
+- **[Type-Level TypeScript](https://type-level-typescript.com)** — teaches TypeScript's type system as set theory: types as sets of values, `|` as union, `&` as intersection, narrowing as shrinking the set. The same picture Lesson 2 uses for A, B, and A∩B. Great for cementing "types are sets" as a permanent mental model, not just a probability-lesson analogy.
+
 ## Secondary
 
 - **Probability and Statistics: The Science of Uncertainty** (Evans & Rosenthal) — free PDF from the authors; intuition-first chapters connecting probability to decision-making. Good for depth once fundamentals are solid.
