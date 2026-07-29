@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 2 · The Filter of Belief</title>
+<link rel="stylesheet" href="../assets/course.css">
+<link rel="stylesheet" href="../assets/prism-tomorrow.min.css">
+<style>
+  /* ── Two-dice grid ── */
+  #grid-wrap { overflow-x: auto; }
+  .dice-grid {
+    display: grid;
+    grid-template-columns: 28px repeat(6, 42px);
+    grid-template-rows: 28px repeat(6, 42px);
+    gap: 3px;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    margin: 1rem auto;
+    width: max-content;
+  }
+  .dice-grid .header {
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 0.7rem;
+  }
+  .cell {
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: white;
+    cursor: default;
+    transition: background 0.15s, opacity 0.15s, border-color 0.15s;
+    font-size: 0.78rem;
+    color: var(--ink);
+    user-select: none;
+  }
+  .cell.in-b    { background: #dbeafe; border-color: #93c5fd; }
+  .cell.in-ab   { background: #2c5fb3; border-color: #1e40af; color: white; font-weight: 700; }
+  .cell.faded   { opacity: 0.18; }
+
+  .event-controls { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.8rem 0; }
+  .event-controls label {
+    font-family: var(--mono); font-size: 0.82rem;
+    display: flex; align-items: center; gap: 0.35rem; cursor: pointer;
+  }
+  .prob-display {
+    font-family: var(--mono); font-size: 0.9rem;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.8rem 1rem;
+    margin: 0.8rem 0; line-height: 1.9;
+  }
+  .prob-display .hi { color: #2c5fb3; font-weight: 700; }
+  .prob-display .hiB { color: #b3412c; }
+</style>
+</head>
+<body>
+
+<h1>The Filter of Belief</h1>
+<div class="lesson-meta">Lesson 0002 · ~12 minutes · Conditional probability — the doorway to Bayes</div>
+
+<p>You've just learned something. Maybe you rolled one die and saw it's odd, or you heard
+that it rained in the morning, or a test came back positive. New information <em>changes</em>
+what you should believe about other things.</p>
+
+<p>This lesson is about <strong>what "changing your beliefs" means precisely</strong> —
+and it turns out to be the most familiar thing in programming: <code>.filter()</code>.</p>
+
+<h2>1 · Conditioning = restricting Ω</h2>
+
+<p>When you learn that event B occurred, you don't throw away your model — you just
+<strong>zoom in</strong>. Everything outside B becomes impossible. The new universe is B.</p>
+
+<p>In code you've done this a thousand times:</p>
+
+<pre><code class="language-typescript">const outcomes = ['HH','HT','TH','TT'];          // Ω — the full sample space
+
+// You learn coin₁ was Heads. That's event B:
+const B = outcomes.filter(ω => ω[0] === 'H');    // ['HH','HT']  ← new universe
+
+// Now ask: given B, what's P(both heads)?
+const A = ['HH'];
+const AgivenB = B.filter(ω => A.includes(ω));    // ['HH']
+
+const P_A_given_B = AgivenB.length / B.length;   // 1/2
+</code></pre>
+
+<p>That's it. Conditional probability is <strong>filter, then count</strong>. The math
+just gives it a compact notation:</p>
+
+<div class="notation-card">
+  <div class="symbol">P(A | B) &nbsp;<span style="font-size:0.55em;color:var(--muted)">("probability of A <em>given</em> B")</span></div>
+  <div class="plain"><strong>Plain language:</strong> assuming B already happened, what fraction of B's outcomes also satisfy A? The pipe <code>|</code> means exactly what it means in a SQL WHERE clause or a Unix pipe — "filter to this".</div>
+  <div class="code-analogy"><span class="kw">const</span> P = (A: ω[], B: ω[]) =&gt; B.filter(ω =&gt; A.includes(ω)).length / B.length;<br><span class="cm">// P(A | B): filter Ω down to B, then count how much of B is in A</span></div>
+</div>
+
+<h2>2 · The intersection: A and B both occurring</h2>
+
+<p>Notice that <code>B.filter(ω => A.includes(ω))</code> selects outcomes that are in
+<em>both</em> A and B. That region has its own name and symbol:</p>
+
+<div class="notation-card">
+  <div class="symbol">A ∩ B &nbsp;<span style="font-size:0.55em;color:var(--muted)">("A intersect B" — A and B)</span></div>
+  <div class="plain"><strong>Plain language:</strong> the set of outcomes where both A and B occur. The symbol ∩ looks like an upside-down ∪ — think of it as a net catching only what falls in both buckets.</div>
+  <div class="code-analogy"><span class="kw">const</span> intersect = (A: Set&lt;ω&gt;, B: Set&lt;ω&gt;) =&gt; [...A].filter(x =&gt; B.has(x));<span class="cm"> // A ∩ B</span></div>
+</div>
+
+<p>With this in hand, the conditional probability formula writes itself. P(A|B) is
+just "the fraction of B that is also in A" — which is P(A∩B) divided by P(B):</p>
+
+<div class="trophy">
+  <div class="label">🏆 Trophy Formula № 2</div>
+  <div class="formula">
+    P(A | B) = <span style="display:inline-block;vertical-align:middle;text-align:center">
+      <span style="display:block;border-bottom:1.5px solid var(--ink);padding:0 .4em">P(A ∩ B)</span>
+      <span style="display:block;padding:0 .4em">P(B)</span>
+    </span>
+  </div>
+  <div class="caption">
+    In code: <code>intersect(A,B).length / B.length</code> — filter to B, measure A inside it.
+    Valid whenever P(B) &gt; 0 (you can't condition on the impossible).
+  </div>
+</div>
+
+<div class="aside">Why divide by P(B)? You're <em>rescaling</em>. After filtering to B,
+B is the new 100% — so you normalize by P(B) to make the probabilities sum to 1 again.
+Same reason you divide by <code>B.length</code>, not <code>outcomes.length</code>, after filtering.</div>
+
+<h2>3 · See it on two dice</h2>
+
+<p>From your learning record: two dice → 36 outcomes (6 × 6 Cartesian product). Each cell
+below is one outcome (die₁, die₂). Pick events B and A using the controls — watch Ω
+shrink to B, then see how much of B is covered by A.</p>
+
+<div id="grid-wrap">
+  <div id="dice-grid" class="dice-grid"></div>
+</div>
+
+<div class="event-controls">
+  <strong style="font-size:0.82rem;color:var(--muted);font-family:var(--mono)">Event B (filter to):</strong>
+  <label><input type="radio" name="evB" value="all" checked> all outcomes</label>
+  <label><input type="radio" name="evB" value="d1even"> die₁ is even</label>
+  <label><input type="radio" name="evB" value="d2lte3"> die₂ ≤ 3</label>
+  <label><input type="radio" name="evB" value="sum7"> sum = 7</label>
+</div>
+<div class="event-controls">
+  <strong style="font-size:0.82rem;color:var(--muted);font-family:var(--mono)">Event A (find inside B):</strong>
+  <label><input type="radio" name="evA" value="none" checked> none</label>
+  <label><input type="radio" name="evA" value="d1gt3"> die₁ &gt; 3</label>
+  <label><input type="radio" name="evA" value="sumgt7"> sum &gt; 7</label>
+  <label><input type="radio" name="evA" value="doubles"> doubles (d₁=d₂)</label>
+</div>
+
+<div class="prob-display" id="prob-display">
+  Choose events above to see P(A | B) computed step by step.
+</div>
+
+<h2>4 · Why this matters for decisions</h2>
+
+<p>Here's where conditional probability becomes a superpower. Suppose you take a medical
+test for a rare disease. The test comes back <strong>positive</strong>. Should you panic?</p>
+
+<p>Your gut says yes — "the test is positive." But your gut is ignoring the Ω shrinkage.
+The right question is: <em>given a positive test result (event B), what fraction of those
+people actually have the disease (event A)?</em> That's P(disease | positive test) — and
+it depends critically on how rare the disease is in the first place.</p>
+
+<p>This is the base-rate trap, and it bites doctors, judges, and investors constantly.
+Working it out precisely requires one more algebraic step — and that step is
+<strong>Bayes' theorem</strong>. That's Lesson 3.</p>
+
+<div class="aside">The punchline: even a 99%-accurate test can give a mostly-false positive rate
+if the disease is rare enough. We'll compute the exact number in Lesson 3 and it will
+surprise you.</div>
+
+<h2>5 · Check your retrieval</h2>
+
+<div id="q1"></div>
+<div id="q2"></div>
+<div id="q3"></div>
+
+<h2>6 · Go deeper</h2>
+
+<p><strong>Primary source:</strong>
+<a href="https://seeing-theory.brown.edu/compound-probability/index.html">Seeing Theory, Chapter 2: Compound Probability</a> —
+interactive Venn diagrams for A∩B, A∪B, and conditional probability.
+Spend 5 minutes dragging the sliders.</p>
+
+<div class="ask-reminder">💬 <strong>Stuck or curious?</strong> Ask the agent — "why can't you condition on P(B)=0?",
+"what does A∪B mean?", "show me a real decision where ignoring base rates cost someone money". Follow-up is where the insights live.</div>
+
+<div class="lesson-footer">
+  <strong>Earned this lesson:</strong> A∩B, P(A|B), and Trophy №2 — now on your
+  <a href="../reference/formula-trophies.html">trophy shelf</a> and in the
+  <a href="../reference/notation-glossary.html">notation glossary</a>.<br>
+  <strong>Next lesson:</strong> Bayes' theorem — flip the conditioning, update your beliefs.
+</div>
+
+<script src="../assets/prism.min.js"></script>
+<script src="../assets/prism-typescript.min.js"></script>
+<script src="../assets/quiz.js"></script>
+<script>
+// ── Two-dice grid ─────────────────────────────────────────
+const grid = document.getElementById('dice-grid');
+const probDisplay = document.getElementById('prob-display');
+
+// Build header row
+const cornerDiv = document.createElement('div');
+cornerDiv.className = 'header';
+cornerDiv.textContent = 'd₁↓ d₂→';
+cornerDiv.style.fontSize = '0.6rem';
+grid.appendChild(cornerDiv);
+for (let d2 = 1; d2 <= 6; d2++) {
+  const h = document.createElement('div');
+  h.className = 'header';
+  h.textContent = d2;
+  grid.appendChild(h);
+}
+
+// Build cells, keyed [d1][d2]
+const cells = {};
+for (let d1 = 1; d1 <= 6; d1++) {
+  const rowH = document.createElement('div');
+  rowH.className = 'header';
+  rowH.textContent = d1;
+  grid.appendChild(rowH);
+  cells[d1] = {};
+  for (let d2 = 1; d2 <= 6; d2++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.title = `(${d1},${d2}) sum=${d1+d2}`;
+    cell.textContent = `${d1+d2}`;
+    grid.appendChild(cell);
+    cells[d1][d2] = cell;
+  }
+}
+
+// Event predicates
+const events = {
+  B: {
+    all:    () => true,
+    d1even: ([d1]) => d1 % 2 === 0,
+    d2lte3: ([d1,d2]) => d2 <= 3,
+    sum7:   ([d1,d2]) => d1+d2 === 7,
+  },
+  A: {
+    none:   () => false,
+    d1gt3:  ([d1]) => d1 > 3,
+    sumgt7: ([d1,d2]) => d1+d2 > 7,
+    doubles:([d1,d2]) => d1 === d2,
+  }
+};
+
+const eventLabels = {
+  all: 'all outcomes', d1even: 'die₁ is even', d2lte3: 'die₂ ≤ 3', sum7: 'sum = 7',
+  none: 'none', d1gt3: 'die₁ > 3', sumgt7: 'sum > 7', doubles: 'doubles',
+};
+
+function updateGrid() {
+  const bKey = document.querySelector('input[name="evB"]:checked').value;
+  const aKey = document.querySelector('input[name="evA"]:checked').value;
+  const inB = events.B[bKey];
+  const inA = events.A[aKey];
+
+  let totalB = 0, totalAB = 0;
+
+  for (let d1 = 1; d1 <= 6; d1++) {
+    for (let d2 = 1; d2 <= 6; d2++) {
+      const outcome = [d1, d2];
+      const b = inB(outcome);
+      const a = inA(outcome);
+      const cell = cells[d1][d2];
+      cell.className = 'cell';
+      if (bKey === 'all') {
+        if (a) cell.classList.add('in-ab');
+      } else {
+        if (b && a)  { cell.classList.add('in-ab'); }
+        else if (b)  { cell.classList.add('in-b'); }
+        else         { cell.classList.add('faded'); }
+      }
+      if (b) totalB++;
+      if (b && a) totalAB++;
+    }
+  }
+
+  // Probability display
+  const pB = totalB / 36;
+  const pAB = totalAB / 36;
+  const pAgB = totalB > 0 ? totalAB / totalB : null;
+
+  if (aKey === 'none') {
+    probDisplay.innerHTML = bKey === 'all'
+      ? `P(B) = 36/36 = 1.000 — B is the whole sample space`
+      : `<span class="hiB">P(B = "${eventLabels[bKey]}") = ${totalB}/36 = ${pB.toFixed(4)}</span><br>` +
+        `<em>Select an event A to see P(A | B).</em>`;
+    return;
+  }
+
+  probDisplay.innerHTML =
+    `<span class="hiB">P(B) = ${totalB}/36 = ${pB.toFixed(4)}</span> &nbsp;·&nbsp; ` +
+    `<span class="hi">P(A ∩ B) = ${totalAB}/36 = ${pAB.toFixed(4)}</span><br>` +
+    `<strong>P(A | B)</strong> = P(A ∩ B) / P(B) = ` +
+    `(${totalAB}/36) / (${totalB}/36) = ` +
+    `<strong>${totalAB}/${totalB}${pAgB !== null ? ' = ' + pAgB.toFixed(4) : ''}</strong><br>` +
+    `<em style="font-size:0.82rem;color:var(--muted)">` +
+    `Of the ${totalB} outcomes in B (blue+dark), ${totalAB} also satisfy A (dark blue).</em>`;
+}
+
+document.querySelectorAll('input[name="evB"], input[name="evA"]')
+  .forEach(r => r.addEventListener('change', updateGrid));
+updateGrid();
+
+// ── Quizzes ───────────────────────────────────────────────
+renderQuizzes([
+  {
+    el: '#q1',
+    question: 'You roll two dice. Given die₁ = 2, what is P(sum = 7 | die₁ = 2)?',
+    options: [
+      '1/6 — one outcome in six satisfies sum=7 given die₁=2',
+      '6/36 — six outcomes in full Ω sum to seven total',
+      '2/36 — two outcomes have die₁=2 and sum=7',
+    ],
+    answer: 0,
+    explanation: 'Filter to B = {die₁=2}: outcomes are (2,1),(2,2),(2,3),(2,4),(2,5),(2,6) — six equally likely. Only (2,5) sums to 7. P(sum=7 | die₁=2) = 1/6. The 6/36 answer is P(sum=7) unconditionally — a different question. Conditioning shrank the universe from 36 to 6.',
+  },
+  {
+    el: '#q2',
+    question: 'Which code correctly computes P(A | B)?',
+    options: [
+      'Ω.filter(B).filter(A).length / Ω.filter(B).length',
+      'Ω.filter(A).length / Ω.filter(B).length',
+      'Ω.filter(B).filter(A).length / Ω.length',
+    ],
+    answer: 0,
+    explanation: 'P(A|B) = |A∩B|/|B|. In code: filter to B first (the new universe), then filter for A within that. Dividing by Ω.length (option C) forgets to normalize to B. Option B finds A outcomes but doesn\'t restrict to B first — it\'s computing the wrong intersection.',
+  },
+  {
+    el: '#q3',
+    question: 'P(A|B) = 0.8 and P(B) = 0.25. What is P(A ∩ B)?',
+    options: [
+      '0.20 — rearranging the trophy formula: P(A∩B) = P(A|B) × P(B)',
+      '3.20 — dividing P(A|B) by P(B) gives the intersection',
+      '0.55 — subtracting P(B) from P(A|B) yields the overlap',
+    ],
+    answer: 0,
+    explanation: 'Trophy №2 rearranged: P(A∩B) = P(A|B) × P(B) = 0.8 × 0.25 = 0.20. This rearrangement — the multiplication rule — is exactly what Bayes\' theorem is built from. You\'ll use it in Lesson 3.',
+  },
+]);
+</script>
+
+</body>
+</html>

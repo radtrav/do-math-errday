@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notation Glossary · do-math-errday</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  td.sym { font-size: 1.25rem; white-space: nowrap; }
+  td.code { font-family: var(--mono); font-size: 0.78rem; }
+</style>
+</head>
+<body>
+
+<h1>Notation Glossary</h1>
+<div class="lesson-meta">Every symbol earned so far — plain language first, TypeScript anchor second. Grows with each lesson.</div>
+
+<table>
+  <thead>
+    <tr><th>Symbol</th><th>Read aloud as</th><th>Plain meaning</th><th>TypeScript anchor</th><th>Earned</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="sym">Ω</td>
+      <td>"omega" (the sample space)</td>
+      <td>The set of every possible outcome of an experiment.</td>
+      <td class="code">type Die = 1|2|3|4|5|6</td>
+      <td><a href="../lessons/0001-the-type-system-of-uncertainty.html">L1</a></td>
+    </tr>
+    <tr>
+      <td class="sym">ω</td>
+      <td>"little omega" (an outcome)</td>
+      <td>One specific outcome — a single realized result.</td>
+      <td class="code">const ω: Die = 4</td>
+      <td><a href="../lessons/0001-the-type-system-of-uncertainty.html">L1</a></td>
+    </tr>
+    <tr>
+      <td class="sym">∈</td>
+      <td>"is an element of"</td>
+      <td>Set membership: the thing on the left is inside the set on the right.</td>
+      <td class="code">set.has(x) === true</td>
+      <td><a href="../lessons/0001-the-type-system-of-uncertainty.html">L1</a></td>
+    </tr>
+    <tr>
+      <td class="sym">A ⊆ Ω</td>
+      <td>"A is a subset of Omega"</td>
+      <td>An event: any collection of outcomes carved from the sample space.</td>
+      <td class="code">Ω.filter(predicate)</td>
+      <td><a href="../lessons/0001-the-type-system-of-uncertainty.html">L1</a></td>
+    </tr>
+    <tr>
+      <td class="sym">P(A)</td>
+      <td>"the probability of A"</td>
+      <td>A function from events to [0, 1]: how much of possibility-space A covers. P(Ω)=1, P(∅)=0.</td>
+      <td class="code">(A: Set&lt;Die&gt;) =&gt; number</td>
+      <td><a href="../lessons/0001-the-type-system-of-uncertainty.html">L1</a></td>
+    </tr>
+    <tr>
+      <td class="sym">|A|</td>
+      <td>"the size of A" (cardinality)</td>
+      <td>How many elements the set A contains.</td>
+      <td class="code">A.size</td>
+      <td><a href="../lessons/0001-the-type-system-of-uncertainty.html">L1</a></td>
+    </tr>
+    <tr>
+      <td class="sym">∅</td>
+      <td>"the empty set"</td>
+      <td>The event containing no outcomes — it can never occur.</td>
+      <td class="code">new Set() // .size === 0</td>
+      <td><a href="../lessons/0001-the-type-system-of-uncertainty.html">L1</a></td>
+    </tr>
+    <tr>
+      <td class="sym">A ∩ B</td>
+      <td>"A intersect B" (A and B)</td>
+      <td>Outcomes where both A and B occur simultaneously — the overlap region.</td>
+      <td class="code">[...A].filter(x =&gt; B.has(x))</td>
+      <td><a href="../lessons/0002-the-filter-of-belief.html">L2</a></td>
+    </tr>
+    <tr>
+      <td class="sym">P(A | B)</td>
+      <td>"probability of A given B"</td>
+      <td>Assuming B occurred, the fraction of B's outcomes that also satisfy A. The | means "filter to B first".</td>
+      <td class="code">Ω.filter(B).filter(A).length / Ω.filter(B).length</td>
+      <td><a href="../lessons/0002-the-filter-of-belief.html">L2</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="aside">Convention worth memorizing: <strong>capital letters</strong> for sets/events/types (Ω, A, X),
+<strong>lowercase</strong> for individual values (ω, a, x) — exactly the <code>Type</code> vs <code>value</code> split in TypeScript.</div>
+
+</body>
+</html>

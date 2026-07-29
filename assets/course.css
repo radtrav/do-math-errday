@@ -1,0 +1,207 @@
+/* do-math-errday — shared course stylesheet
+   Tufte-inspired: generous margins, readable measure, restrained color. */
+
+:root {
+  --ink: #1a1a1a;
+  --paper: #fffff8;
+  --accent: #b3412c;      /* earned-formula / trophy red */
+  --info: #2c5fb3;        /* links, interactive affordances */
+  --ok: #2e7d32;
+  --bad: #c62828;
+  --muted: #767676;
+  --card: #f7f6ee;
+  --border: #e0ded2;
+  --mono: "SF Mono", "Fira Code", Menlo, Consolas, monospace;
+  --serif: "Palatino", "Palatino Linotype", Georgia, serif;
+}
+
+html { font-size: 17px; }
+
+body {
+  font-family: var(--serif);
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.6;
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 6rem;
+}
+
+h1, h2, h3 {
+  font-weight: 400;
+  line-height: 1.2;
+}
+h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+h3 { font-size: 1.1rem; font-style: italic; }
+
+.lesson-meta {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-style: italic;
+  margin-bottom: 2rem;
+}
+
+a { color: var(--info); }
+
+code, pre {
+  font-family: var(--mono);
+  font-size: 0.82em;
+  background: var(--card);
+  border-radius: 4px;
+}
+code { padding: 0.1em 0.35em; }
+pre {
+  padding: 1rem;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  line-height: 1.5;
+}
+
+/* ── Notation card: plain language → code analogy → symbol ── */
+.notation-card {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 1.5rem 0;
+  overflow: hidden;
+}
+.notation-card .symbol {
+  font-size: 1.6rem;
+  padding: 0.8rem 1rem;
+  background: var(--card);
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.notation-card .plain {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.notation-card .code-analogy {
+  padding: 0.7rem 1rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  background: #2b2b26;
+  color: #e8e6d9;
+}
+.notation-card .code-analogy .kw { color: #c792ea; }
+.notation-card .code-analogy .str { color: #c3e88d; }
+.notation-card .code-analogy .cm { color: #8a8a7a; font-style: italic; }
+
+/* ── Trophy formula box ── */
+.trophy {
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+  padding: 1.2rem 1.5rem;
+  margin: 2rem 0;
+  background: linear-gradient(180deg, #fff9f7, var(--paper));
+  text-align: center;
+}
+.trophy .label {
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+}
+.trophy .formula { font-size: 1.5rem; margin: 0.6rem 0; }
+.trophy .caption { color: var(--muted); font-size: 0.9rem; font-style: italic; }
+
+/* ── Interactive widget frame ── */
+.widget {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.2rem;
+  margin: 1.5rem 0;
+  background: var(--card);
+}
+.widget h4 { margin: 0 0 0.8rem; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.widget button {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--info);
+  border-radius: 6px;
+  background: white;
+  color: var(--info);
+  cursor: pointer;
+}
+.widget button:hover { background: var(--info); color: white; }
+.widget button.primary { background: var(--info); color: white; }
+.widget .readout { font-family: var(--mono); font-size: 0.85rem; margin-top: 0.6rem; }
+
+/* ── Quiz ── */
+.quiz { margin: 1.5rem 0; }
+.quiz .question { font-weight: 700; margin-bottom: 0.6rem; }
+.quiz .option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  padding: 0.6rem 0.9rem;
+  margin: 0.35rem 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+}
+.quiz .option:hover { border-color: var(--info); }
+.quiz .option.correct { border-color: var(--ok); background: #edf7ed; }
+.quiz .option.incorrect { border-color: var(--bad); background: #fdeeee; }
+.quiz .explanation {
+  display: none;
+  padding: 0.7rem 1rem;
+  margin-top: 0.6rem;
+  border-left: 3px solid var(--ok);
+  background: var(--card);
+  font-size: 0.92rem;
+}
+.quiz .explanation.visible { display: block; }
+
+/* ── Margin-style asides ── */
+.aside {
+  font-size: 0.88rem;
+  color: var(--muted);
+  border-left: 3px solid var(--border);
+  padding: 0.3rem 0 0.3rem 1rem;
+  margin: 1.2rem 0;
+  font-style: italic;
+}
+
+/* ── Footer nav ── */
+.lesson-footer {
+  margin-top: 3.5rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.ask-reminder {
+  background: #eef3fb;
+  border: 1px solid #c9d9f2;
+  border-radius: 8px;
+  padding: 0.9rem 1.2rem;
+  margin: 2rem 0;
+  font-size: 0.92rem;
+}
+
+svg text { font-family: var(--mono); }
+
+/* ── Prism overrides — keep consistent with course typography ── */
+pre[class*="language-"] {
+  border-radius: 6px;
+  border: 1px solid #1a1a1a;
+  font-size: 0.82em;
+  line-height: 1.55;
+  margin: 1rem 0;
+}
+/* Notation cards keep their hand-rolled dark style — don't let Prism bleed in */
+.notation-card .code-analogy code[class*="language-"],
+.notation-card .code-analogy pre[class*="language-"] {
+  background: transparent;
+  border: none;
+  padding: 0;
+}

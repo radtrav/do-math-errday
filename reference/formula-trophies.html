@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Formula Trophy Shelf · do-math-errday</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+
+<h1>🏆 Formula Trophy Shelf</h1>
+<div class="lesson-meta">Every formula here was earned in a lesson — each one is a compressed reminder of a concept truly understood. Print-worthy by design.</div>
+
+<div class="trophy">
+  <div class="label">🏆 Trophy № 1 · Classical Probability</div>
+  <div class="formula">P(A) = <span style="display:inline-block;vertical-align:middle;text-align:center"><span style="display:block;border-bottom:1.5px solid var(--ink);padding:0 .4em">|A|</span><span style="display:block;padding:0 .4em">|Ω|</span></span></div>
+  <div class="caption">Favorable outcomes over total outcomes — <strong>only when all outcomes are equally likely</strong>.
+  In code: <code>A.size / Ω.size</code>.
+  Earned in <a href="../lessons/0001-the-type-system-of-uncertainty.html">Lesson 1: The Type System of Uncertainty</a>.</div>
+</div>
+
+<div class="trophy">
+  <div class="label">🏆 Trophy № 2 · Conditional Probability</div>
+  <div class="formula">
+    P(A | B) = <span style="display:inline-block;vertical-align:middle;text-align:center">
+      <span style="display:block;border-bottom:1.5px solid var(--ink);padding:0 .4em">P(A ∩ B)</span>
+      <span style="display:block;padding:0 .4em">P(B)</span>
+    </span>
+  </div>
+  <div class="caption">The probability of A <em>given</em> B occurred — filter Ω to B, measure A inside it.
+  In code: <code>Ω.filter(B).filter(A).length / Ω.filter(B).length</code>.
+  Rearranged: <code>P(A∩B) = P(A|B) × P(B)</code> — the multiplication rule.
+  Earned in <a href="../lessons/0002-the-filter-of-belief.html">Lesson 2: The Filter of Belief</a>.</div>
+</div>
+
+<div class="aside">Shelf space reserved. Coming trophies: Bayes' theorem; 𝔼[X] — expected value; Var(X) — variance…</div>
+
+</body>
+</html>

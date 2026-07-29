@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 1 · The Type System of Uncertainty</title>
+<link rel="stylesheet" href="../assets/course.css">
+<link rel="stylesheet" href="../assets/prism-tomorrow.min.css">
+</head>
+<body>
+
+<h1>The Type System of Uncertainty</h1>
+<div class="lesson-meta">Lesson 0001 · ~12 minutes · Foundations for everything that follows</div>
+
+<p>Every good decision under uncertainty starts the same way: <strong>write down what could happen.</strong>
+Not what you <em>think</em> will happen — the full list of possibilities. Probability theory is,
+at its core, a <em>type system for uncertainty</em>: it forces you to declare the space of outcomes
+before you're allowed to reason about any of them.</p>
+
+<p>Today you'll earn three symbols and one trophy formula. That's the whole lesson.</p>
+
+<h2>1 · The sample space: declaring your types</h2>
+
+<p>Imagine rolling a single six-sided die. Before probability can say <em>anything</em>, it needs
+the set of every possible outcome. That set is called the <strong>sample space</strong>, and it gets
+the most majestic symbol in the subject:</p>
+
+<div class="notation-card">
+  <div class="symbol">Ω &nbsp;<span style="font-size:0.55em;color:var(--muted)">("omega" — the sample space)</span></div>
+  <div class="plain"><strong>Plain language:</strong> the set of every outcome that could possibly occur. Nothing outside Ω can happen.</div>
+  <div class="code-analogy"><span class="kw">type</span> Die = <span class="str">1</span> | <span class="str">2</span> | <span class="str">3</span> | <span class="str">4</span> | <span class="str">5</span> | <span class="str">6</span>;  <span class="cm">// Ω is the union type of all outcomes</span></div>
+</div>
+
+<p>Just like TypeScript won't let a <code>Die</code> hold the value <code>7</code>, probability won't
+let you reason about outcomes outside Ω. A single result of the experiment — one roll — is written
+with the lowercase letter:</p>
+
+<div class="notation-card">
+  <div class="symbol">ω ∈ Ω &nbsp;<span style="font-size:0.55em;color:var(--muted)">("omega is an element of big-Omega")</span></div>
+  <div class="plain"><strong>Plain language:</strong> ω is one specific outcome. The symbol ∈ means "is a member of" — the mathematical <code>set.has()</code>.</div>
+  <div class="code-analogy"><span class="kw">const</span> ω: Die = <span class="str">4</span>;  <span class="cm">// one concrete value of the type — ∈ is the type annotation ":"</span></div>
+</div>
+
+<div class="aside">Reading tip: capital Ω = the whole type, lowercase ω = one value of it. Math reuses
+this capital/lowercase convention constantly, exactly like <code>Type</code> vs <code>value</code>.</div>
+
+<h2>2 · Events: predicates over the sample space</h2>
+
+<p>Here's the move that unlocks everything. You rarely care about one exact outcome — you care about
+<em>questions</em> like "did I roll an even number?" A question like that carves out a <strong>subset</strong>
+of Ω, and that subset is called an <strong>event</strong>.</p>
+
+<div class="notation-card">
+  <div class="symbol">A ⊆ Ω &nbsp;<span style="font-size:0.55em;color:var(--muted)">("A is a subset of Omega" — an event)</span></div>
+  <div class="plain"><strong>Plain language:</strong> an event A is any collection of outcomes. "Rolled even" is the event A = {2, 4, 6}. The event <em>occurs</em> if the outcome ω lands inside A.</div>
+  <div class="code-analogy"><span class="kw">const</span> isEven = (ω: Die) => ω % <span class="str">2</span> === <span class="str">0</span>;  <span class="cm">// an event IS a predicate</span><br><span class="kw">const</span> A = [<span class="str">1</span>,<span class="str">2</span>,<span class="str">3</span>,<span class="str">4</span>,<span class="str">5</span>,<span class="str">6</span>].filter(isEven);  <span class="cm">// …or equivalently, the subset it selects: [2,4,6]</span></div>
+</div>
+
+<p>Visually — and this picture is worth memorizing — Ω is a box, and an event is a region inside it:</p>
+
+<svg viewBox="0 0 460 180" style="width:100%;max-width:460px;display:block;margin:1rem auto">
+  <rect x="10" y="10" width="440" height="160" fill="#f7f6ee" stroke="#1a1a1a" stroke-width="1.5" rx="6"/>
+  <text x="425" y="32" font-size="15">Ω</text>
+  <ellipse cx="170" cy="90" rx="120" ry="58" fill="#2c5fb3" fill-opacity="0.15" stroke="#2c5fb3" stroke-width="1.5"/>
+  <text x="150" y="52" font-size="14" fill="#2c5fb3">A = even</text>
+  <text x="110" y="95" font-size="16">2</text><text x="165" y="115" font-size="16">4</text><text x="220" y="90" font-size="16">6</text>
+  <text x="330" y="70" font-size="16">1</text><text x="370" y="120" font-size="16">3</text><text x="410" y="85" font-size="16">5</text>
+</svg>
+
+<h2>3 · P: a function from events to [0, 1]</h2>
+
+<p>Finally, probability itself. <strong>P is just a function.</strong> It takes an event and returns
+a number between 0 (impossible) and 1 (certain) measuring <em>how much of Ω the event covers</em> —
+in the picture above, roughly "what fraction of the box does the region take up?"</p>
+
+<div class="notation-card">
+  <div class="symbol">P(A) &nbsp;<span style="font-size:0.55em;color:var(--muted)">("the probability of event A")</span></div>
+  <div class="plain"><strong>Plain language:</strong> the fraction of possibility-space that A occupies. P(Ω) = 1 — <em>something</em> must happen. P(∅) = 0 — the empty event never happens.</div>
+  <div class="code-analogy"><span class="kw">const</span> P = (A: Set&lt;Die&gt;): <span class="kw">number</span> => A.size / <span class="str">6</span>;  <span class="cm">// for a fair die: measure = fraction of outcomes</span></div>
+</div>
+
+<p>When every outcome is equally likely (fair die, fair coin, shuffled deck), P has a beautifully
+simple implementation — and it's your first trophy:</p>
+
+<div class="trophy">
+  <div class="label">🏆 Trophy Formula № 1</div>
+  <div class="formula">P(A) = <span style="display:inline-block;vertical-align:middle;text-align:center"><span style="display:block;border-bottom:1.5px solid var(--ink);padding:0 .4em">|A|</span><span style="display:block;padding:0 .4em">|Ω|</span></span></div>
+  <div class="caption">Classical probability: favorable outcomes over total outcomes — valid only when all outcomes are equally likely. The bars |·| mean "size of the set", i.e. <code>A.size</code>.</div>
+</div>
+
+<p>So P(even) = |{2,4,6}| / |{1,2,3,4,5,6}| = 3/6 = <strong>0.5</strong>. Theory says 0.5.
+But does the universe agree? Let's check.</p>
+
+<h2>4 · Run the experiment</h2>
+
+<p>This is the empirical heart of probability: if you actually roll the die over and over, the
+<em>observed frequency</em> of "even" should drift toward the theoretical 0.5. Watch how noisy it
+is at 10 rolls, and how it locks on at 10,000.</p>
+
+<div class="widget">
+  <h4>🎲 Dice Lab — event A = "roll is even", theoretical P(A) = 0.5</h4>
+  <button id="roll1">roll ×1</button>
+  <button id="roll100">roll ×100</button>
+  <button id="roll10k" class="primary">roll ×10,000</button>
+  <button id="reset">reset</button>
+  <svg id="chart" viewBox="0 0 460 120" style="width:100%;max-width:460px;display:block;margin-top:0.8rem">
+    <line x1="30" y1="55" x2="450" y2="55" stroke="#b3412c" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="34" y="50" font-size="10" fill="#b3412c">theoretical 0.5</text>
+    <line x1="30" y1="10" x2="30" y2="100" stroke="#767676" stroke-width="1"/>
+    <line x1="30" y1="100" x2="450" y2="100" stroke="#767676" stroke-width="1"/>
+    <text x="6" y="14" font-size="10">1.0</text>
+    <text x="6" y="103" font-size="10">0.0</text>
+    <polyline id="freqline" points="" fill="none" stroke="#2c5fb3" stroke-width="1.5"/>
+  </svg>
+  <div class="readout" id="readout">rolls: 0 · evens: 0 · observed frequency: —</div>
+</div>
+
+<div class="aside">What you're seeing is a preview of the <strong>Law of Large Numbers</strong> — a
+future lesson. Note what it does <em>not</em> say: after a streak of odd rolls, even is not "due".
+Each roll is a fresh call to <code>random()</code> with no memory.</div>
+
+<h2>5 · Check your retrieval</h2>
+
+<p>Answer from memory — scroll back only after committing to an answer.</p>
+
+<div id="q1"></div>
+<div id="q2"></div>
+<div id="q3"></div>
+
+<h2>6 · Go deeper</h2>
+
+<p><strong>Primary source:</strong> spend 10 minutes in
+<a href="https://seeing-theory.brown.edu/basic-probability/index.html">Seeing Theory, Chapter 1: Basic Probability</a>
+(Brown University) — its coin-flip simulator is the polished version of the Dice Lab above.
+For the philosophy of "probability as area", watch
+<a href="https://www.3blue1brown.com/topics/probability">3Blue1Brown's probability series</a>.</p>
+
+<div class="ask-reminder">💬 <strong>Stuck or curious?</strong> Ask your teacher (the agent) anything —
+"why can't probabilities exceed 1?", "what happens when outcomes aren't equally likely?", or
+"show me Ω for two dice". Follow-up questions are how lessons compound.</div>
+
+<div class="lesson-footer">
+  <strong>Earned this lesson:</strong> Ω, ω, ∈, ⊆, P(A), and Trophy № 1 —
+  now on your <a href="../reference/formula-trophies.html">trophy shelf</a> and in the
+  <a href="../reference/notation-glossary.html">notation glossary</a>.<br>
+  <strong>Next lesson:</strong> what happens to P when you learn new information — conditional probability, the <code>.filter()</code> of belief.
+</div>
+
+<script src="../assets/prism.min.js"></script>
+<script src="../assets/prism-typescript.min.js"></script>
+<script src="../assets/quiz.js"></script>
+<script>
+// ── Dice Lab ──────────────────────────────────────────────
+const state = { rolls: 0, evens: 0, history: [] };
+const readout = document.getElementById('readout');
+const freqline = document.getElementById('freqline');
+
+function roll(n) {
+  for (let i = 0; i < n; i++) {
+    const ω = Math.floor(Math.random() * 6) + 1;   // one outcome ω ∈ Ω
+    state.rolls++;
+    if (ω % 2 === 0) state.evens++;                // did event A occur?
+    state.history.push(state.evens / state.rolls); // running observed frequency
+  }
+  draw();
+}
+
+function draw() {
+  const freq = state.rolls ? (state.evens / state.rolls) : null;
+  readout.textContent = `rolls: ${state.rolls.toLocaleString()} · evens: ${state.evens.toLocaleString()}` +
+    ` · observed frequency: ${freq === null ? '—' : freq.toFixed(4)}` +
+    (freq === null ? '' : ` (off by ${(Math.abs(freq - 0.5)).toFixed(4)})`);
+  // plot up to 420 sampled points across the history, log-ish feel via even sampling
+  const H = state.history, N = H.length;
+  if (!N) { freqline.setAttribute('points', ''); return; }
+  const pts = [];
+  const samples = Math.min(N, 420);
+  for (let i = 0; i < samples; i++) {
+    const idx = Math.floor(i * (N - 1) / Math.max(samples - 1, 1));
+    const x = 30 + (i / Math.max(samples - 1, 1)) * 420;
+    const y = 100 - H[idx] * 90;
+    pts.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+  }
+  freqline.setAttribute('points', pts.join(' '));
+}
+
+document.getElementById('roll1').onclick = () => roll(1);
+document.getElementById('roll100').onclick = () => roll(100);
+document.getElementById('roll10k').onclick = () => roll(10000);
+document.getElementById('reset').onclick = () => { state.rolls = 0; state.evens = 0; state.history = []; draw(); };
+
+// ── Quizzes (equal-length options; no formatting clues) ──
+renderQuizzes([
+  {
+    el: '#q1',
+    question: 'In the roll of one die, what is Ω?',
+    options: [
+      'The single number that the die shows',
+      'The set of all six possible outcomes',
+      'The chance of the most likely roll',
+    ],
+    answer: 1,
+    explanation: 'Ω is the sample space — every outcome that could occur: {1,2,3,4,5,6}. One specific result is the lowercase ω. In TypeScript terms: Ω is the union type, ω is a value of it.',
+  },
+  {
+    el: '#q2',
+    question: 'What is an event, precisely?',
+    options: [
+      'A subset of outcomes drawn from Ω',
+      'A number strictly between 0 and 1',
+      'A single random outcome of a trial',
+    ],
+    answer: 0,
+    explanation: 'An event A ⊆ Ω is any collection of outcomes — equivalently, a predicate over Ω. It "occurs" when the realized outcome ω lands in A. The number between 0 and 1 is P(A), not A itself.',
+  },
+  {
+    el: '#q3',
+    question: 'You draw one card from a fair 52-card deck. P(card is a heart)?',
+    options: [
+      '13/52, since hearts are 13 of 52 cards',
+      '12/52, since face cards must not count',
+      '26/52, since red cards are half of all',
+    ],
+    answer: 0,
+    explanation: 'Trophy № 1: P(A) = |A|/|Ω| = 13/52 = 0.25. The event "is a heart" selects 13 outcomes from the 52-outcome sample space. Careful: "red" would be a different, larger event (26/52).',
+  },
+]);
+</script>
+
+</body>
+</html>
