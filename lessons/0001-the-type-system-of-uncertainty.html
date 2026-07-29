@@ -9,6 +9,15 @@
 </head>
 <body>
 
+<header class="site-header">
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+  <a class="site-title" href="../index.html">do-math-errday</a>
+</header>
+<div class="nav-backdrop" id="navBackdrop"></div>
+<nav class="site-sidebar" id="siteSidebar"></nav>
+
+<main class="page-content">
+
 <h1>The Type System of Uncertainty</h1>
 <div class="lesson-meta">Lesson 0001 · ~12 minutes · Foundations for everything that follows</div>
 
@@ -148,10 +157,13 @@ For the philosophy of "probability as area", watch
   <strong>Next lesson:</strong> what happens to P when you learn new information — conditional probability, the <code>.filter()</code> of belief.
 </div>
 
+</main>
+
 <script src="../assets/prism.min.js"></script>
 <script src="../assets/prism-typescript.min.js"></script>
 <script src="../assets/quiz.js"></script>
 <script src="../assets/code-challenge.js"></script>
+<script src="../assets/nav.js"></script>
 <script>
 // ── Code challenge: Trophy № 1 ────────────────────────────
 renderCodeChallenges([
