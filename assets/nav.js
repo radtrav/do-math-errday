@@ -12,6 +12,9 @@
 
   const NAV = [
     { file: 'index.html', label: '🏠 Home', top: true },
+    { group: 'Courses', items: [
+      { file: 'data-analysis/index.html', label: 'Data Analysis from First Principles' },
+    ] },
     { group: 'Lessons', items: [
       { file: 'lessons/0001-the-type-system-of-uncertainty.html', label: '1 · The Type System of Uncertainty' },
       { file: 'lessons/0002-the-filter-of-belief.html', label: '2 · The Filter of Belief' },

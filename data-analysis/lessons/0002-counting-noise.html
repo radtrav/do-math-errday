@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 0002 · Counting Noise</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  /* simulator grid */
+  .simgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 1rem 0; }
+  .simday {
+    font-family: var(--mono); font-size: 0.72rem; text-align: center;
+    border: 1px solid var(--rule); border-radius: 3px; padding: 0.45rem 0.2rem;
+    background: #fff;
+  }
+  .simday .d { color: var(--muted); font-size: 0.6rem; display: block; }
+  .simday.pos { background: var(--accent-soft); border-color: var(--accent); }
+  .simday.neg { background: var(--trap-soft); border-color: var(--trap); }
+  .simbar { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .simbar button {
+    font: inherit; font-family: var(--mono); font-size: 0.8rem;
+    background: var(--accent); color: #fff; border: none; border-radius: 4px;
+    padding: 0.5rem 1rem; cursor: pointer;
+  }
+  .simstats { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">
+    <span>Lesson 0002 · Data Analysis from First Principles</span>
+    <span><a href="0001-the-metric-ledger.html">← 0001</a> · <a href="../reference/notation-decoder.html">notation decoder</a> · <a href="../reference/glossary.html">glossary</a></span>
+  </div>
+
+  <h1>Counting Noise</h1>
+  <p class="dek">A rate computed from a sample is a measurement with an error bar — and you can compute the error bar in your head, from n alone.</p>
+
+  <div class="win"><span class="label">The win</span>
+  By the end (~10 min): given any daily rate, you can compute how much it <em>should</em> wobble from
+  pure chance — and judge whether a swing is signal or breathing before anyone opens a debate about it.</div>
+
+  <h2><span class="no">01</span>A day's orders are a random draw</h2>
+  <p>Fix the truth completely: say Talbots desktop has a true conversion probability p = 3% that never
+  changes. Each visit is still an independent coin flip, so the day's order count is a draw:</p>
+
+  <pre class="formula">O ~ Binomial(V, p)
+<span class="dim">daily Orders are distributed as: V independent visits, each buying with probability p</span></pre>
+
+  <pre class="ts"><code>// decoder: ~ declares the generator O was drawn from
+const O = binomialDraw(V, p);   // 350 flips of a 3% coin → some count near 10.5</code></pre>
+
+  <p>The rate you <em>observe</em> is therefore an estimate, and it gets the
+  <a href="../reference/notation-decoder.html#hat">hat</a>:</p>
+
+  <pre class="formula">p̂ = O/V
+<span class="dim">the observed rate ("p-hat") = Orders ÷ Visits — an estimate of the true p, not p itself</span></pre>
+
+  <p>Same truth, different day, different p̂. The whole question of this lesson: <strong>by how much?</strong></p>
+
+  <h2><span class="no">02</span>The formula, in four lines</h2>
+  <p><strong>Line 1.</strong> One visit is a 0-or-1 variable. Its variance
+  (<a href="../reference/notation-decoder.html#var">Var</a>) comes straight from the definition:</p>
+  <pre class="formula">Var(X) = E[X²] − E[X]² = p − p² = <span class="hl">p(1−p)</span>
+<span class="dim">variance of one visit = chance it buys × chance it doesn't</span></pre>
+
+  <p><strong>Line 2.</strong> The observed rate is just the mean of V such flips: p̂ = (1/V)·ΣXᵢ.</p>
+
+  <p><strong>Line 3.</strong> Averaging n independent things divides variance by n — errors partially
+  cancel. This is <em>the</em> mechanism behind everything in this lesson:</p>
+  <pre class="formula">Var(x̄) = Var(X)/n
+<span class="dim">variance of an average = variance of one draw ÷ how many draws you averaged</span></pre>
+
+  <p><strong>Line 4.</strong> Take the square root to get back to readable units. That's the
+  <a href="../reference/notation-decoder.html#se">standard error</a>:</p>
+  <pre class="formula"><span class="hl">SE(p̂) = √( p(1−p) / n )</span>
+<span class="dim">Standard Error of the observed rate = √(one visit's variance ÷ number of visits)</span></pre>
+
+  <pre class="ts"><code>// decoder: the whole derivation is three expressions
+const varOneVisit = p * (1 - p);        // line 1
+const varOfRate   = varOneVisit / n;    // line 3
+const se          = Math.sqrt(varOfRate); // line 4</code></pre>
+
+  <p>Notice the n lives under a square root: noise shrinks as
+  <a href="../reference/notation-decoder.html#prop">1/√n</a>. <strong>To halve the noise you need
+  four times the data.</strong> That asymmetry is why pooling weeks works and staring at days doesn't.</p>
+
+  <h2><span class="no">03</span>The mental shortcut: 1/√count</h2>
+  <p>For rare events there's an even faster version — a count wobbles by about its own square root:</p>
+  <pre class="formula">O ± √O        relative noise ≈ <span class="hl">1/√O</span>
+<span class="dim">ten orders is really 10 ± 3 — anything built from them is a ±32% instrument</span></pre>
+
+  <p>This one line is the whole "why 10 orders can't tell you anything" argument, and it works on
+  anything: 250 pooled orders → 1/√250 ≈ ±6%. 10,000 beacon sessions → ±1%. Memorize it.</p>
+
+  <h2><span class="no">04</span>Run the truth twice</h2>
+  <p>The simulator below creates two arms with the <strong>same true p = 3%</strong>, 350 visits each,
+  28 days — then computes the daily CVR "lift" between them. Every pattern you see is pure counting
+  noise, because there is nothing else in the machine:</p>
+
+  <div class="simbar">
+    <button id="rerun" type="button">simulate 28 days</button>
+    <span class="simstats" id="simstats"></span>
+  </div>
+  <div class="simgrid" id="simgrid"></div>
+  <p class="note">Streaks of red appear in most runs — four losing days in a row from two identical arms.
+  Compare: the real Aug 23–26 "losing streak" that launched a rollback debate. Re-run it a few times and
+  watch different "stories" appear.</p>
+
+  <h2><span class="no">05</span>The real day, checked</h2>
+  <p>Aug 24 desktop, from lesson 0001: control p̂ = 10/354 = 2.82%, test p̂ = 16/331 = 4.83% —
+  a +71% CVR lift. Signal or breathing? Compute each arm's SE, then the gap in noise units
+  (<a href="../reference/notation-decoder.html#z">z</a>) before revealing.</p>
+
+  <details><summary>reveal the check</summary>
+    <pre class="formula">SE_C = √(.0282 × .9718 / 354) ≈ 0.88pp        SE_T = √(.0483 × .9517 / 331) ≈ 1.18pp
+
+gap  = 4.83 − 2.82 = 2.01pp
+SE of the gap = √(SE_C² + SE_T²) ≈ 1.47pp     <span class="dim">(independent noises add in quadrature)</span>
+
+<span class="hl">z = 2.01 / 1.47 ≈ 1.4</span>
+<span class="dim">the gap is 1.4 noise-units wide — under the |z| &lt; 2 rule of thumb, breathing</span></pre>
+    <p>So even the +71%-conversion day — the one that <em>flattered</em> the test arm — is statistically
+    unremarkable on its own. The honesty cuts both ways: single days prove neither the scary story nor
+    the nice one. Only pooling (28 days → SE shrinks by √28 ≈ 5×) turns +11.4% cumulative CVR into
+    something real.</p>
+  </details>
+
+  <h3>Where the |z| rule lives: the bell, with a slider</h3>
+  <p>Gaps between identical arms pile up in a bell shape around zero (measured in noise units, z).
+  Drag the threshold and watch the trade: the green middle is "gaps luck produces routinely," the red
+  tails are "gaps this rare deserve attention." The famous stops: |z| ≤ 1 holds 68.3%,
+  ≤ 2 holds 95.4%, ≤ 3 holds 99.7% — the |z| ≥ 2 rule is just "outside the 95% bulk."</p>
+  <div id="bell"></div>
+
+  <h2><span class="no">06</span>Check yourself</h2>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="say"><span class="label">How you'd say it to a stakeholder</span>
+  <q>A day of conversion data is a few hundred coin flips — and ten orders is a measuring stick with
+  ±30% error bars baked in. When I pool four weeks the error bars shrink five-fold, and that's the
+  number I trust. Judging the test by one day is like judging a coin by ten flips.</q></div>
+
+  <h2><span class="no">07</span>Go deeper</h2>
+  <p><strong>Primary source:</strong> <a href="https://seeing-theory.brown.edu/">Seeing Theory</a> (Brown) —
+  the "Basic Probability" and "Frequentist Inference" chapters are interactive versions of exactly this
+  lesson: watch estimates converge as n grows. 15 minutes, no formulas required.</p>
+
+  <p class="note">Ask your teacher (the agent) anything unclear. Good follow-ups: "why do independent
+  noises add in quadrature (√(a²+b²)) instead of adding directly?", "what breaks if the visits aren't
+  independent?" (both are coming in later lessons, but asking early is better).</p>
+
+  <div class="foot">
+    <span>Reference: <a href="../reference/notation-decoder.html">notation decoder</a> ·
+    <a href="../reference/glossary.html">glossary</a> (new: SE, binomial, √-count rule)</span>
+    <div class="nav">
+      <span><a href="0001-the-metric-ledger.html">← 0001 The Metric Ledger</a></span>
+      <span>Next: <a href="0003-heavy-tails-and-whales.html">0003 · Heavy Tails &amp; Whales — when the average lies</a></span>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/manifest.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/quiz.js"></script>
+<script src="../assets/sim.js"></script>
+<script src="../assets/bellcurve.js"></script>
+<script>
+renderBell(document.getElementById("bell"), { mode: "tails", init: 2 });
+</script>
+<script>
+// ---- simulator ----
+const V = 350, P = 0.03, DAYS = 28;
+const grid = document.getElementById("simgrid");
+const stats = document.getElementById("simstats");
+
+function run() {
+  grid.innerHTML = "";
+  const lifts = [];
+  for (let d = 1; d <= DAYS; d++) {
+    const c = binomialDraw(V, P), t = binomialDraw(V, P);
+    const lift = c === 0 ? 0 : t / c - 1;
+    lifts.push(lift);
+    const cell = document.createElement("div");
+    cell.className = "simday " + (lift > 0 ? "pos" : lift < 0 ? "neg" : "");
+    cell.innerHTML = `<span class="d">day ${d}</span>${fmtPct(lift)}`;
+    grid.appendChild(cell);
+  }
+  stats.textContent =
+    `sd of daily lift: ±${(sd(lifts) * 100).toFixed(0)}%  ·  ` +
+    `range ${fmtPct(Math.min(...lifts))}…${fmtPct(Math.max(...lifts))}  ·  ` +
+    `longest same-sign streak: ${longestStreak(lifts)} days  ·  identical arms!`;
+}
+document.getElementById("rerun").addEventListener("click", run);
+run();
+
+// ---- quiz ----
+renderQuiz(document.getElementById("quiz"), [
+  {
+    q: "Cutting a rate's noise in half requires…",
+    choices: [
+      "twice the sample size",
+      "four times the sample",
+      "eight times the sample",
+      "half the sample size",
+    ],
+    answer: 1,
+    explain: "SE ∝ 1/√n: noise halves when √n doubles, i.e. when n quadruples. Data gets expensive fast — which is why pooling periods beats waiting for bigger days.",
+  },
+  {
+    q: "An arm takes ~10 orders a day. The relative noise on anything built from them is about…",
+    choices: [
+      "±3%",
+      "±10%",
+      "±32%",
+      "±68%",
+    ],
+    answer: 2,
+    explain: "The √-count rule: relative noise ≈ 1/√O = 1/√10 ≈ 32%. Daily AOV and daily RPV inherit this floor before any whale even shows up.",
+  },
+  {
+    q: "Two arms with identical true CVR at these volumes will show daily lifts that…",
+    choices: [
+      "stay under one percent",
+      "alternate sign each day",
+      "average exactly zero daily",
+      "swing by double digits",
+    ],
+    answer: 3,
+    explain: "Each arm's daily p̂ carries ~±30% relative noise; the lift between them carries both arms' noise (~±40%+). You watched the simulator do it with nothing but coin flips.",
+  },
+  {
+    q: "V = 1,000 visits, p = 2%. SE(p̂) is about…",
+    choices: [
+      "±0.14pp",
+      "±0.44pp",
+      "±1.40pp",
+      "±2.00pp",
+    ],
+    answer: 1,
+    explain: "√(0.02 × 0.98 / 1000) = √0.0000196 ≈ 0.0044 → ±0.44 percentage points. So a 2.0% day and a 2.8% day are the same number.",
+  },
+  {
+    q: "The hat in p̂ means…",
+    choices: [
+      "an estimate from data",
+      "the true process value",
+      "an upper probability bound",
+      "a rounded display value",
+    ],
+    answer: 0,
+    explain: "Hat = computed from the sample. p̂ estimates p the way x̄ estimates μ — Latin/hatted symbols are yours, plain Greek belongs to the process.",
+  },
+]);
+</script>
+</body>
+</html>

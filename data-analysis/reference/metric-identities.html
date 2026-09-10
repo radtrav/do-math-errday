@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Metric Identity Tree — Reference</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow"><span>Reference · Cheat sheet</span><span><a href="glossary.html">glossary →</a></span></div>
+  <h1>The Metric Identity Tree</h1>
+  <p class="dek">Four counters. Everything else is a ratio. Print this.</p>
+
+  <h2>The counters</h2>
+  <pre class="tree">
+<span class="hl">V</span> = <b>V</b>isits ──▶ <span class="hl">O</span> = <b>O</b>rders ──▶ <span class="hl">U</span> = <b>U</b>nits ──▶ <span class="hl">D</span> = <b>D</b>emand ($)
+  (sessions)     (checkouts)     (items)      (dollars)</pre>
+
+  <h2>The acronyms, letter by letter</h2>
+  <pre class="formula"><span class="hl">CVR</span>  <b>C</b>on<b>V</b>ersion <b>R</b>ate          <span class="hl">AOV</span>  <b>A</b>verage <b>O</b>rder <b>V</b>alue
+<span class="hl">UPT</span>  <b>U</b>nits <b>P</b>er <b>T</b>ransaction    <span class="hl">AUR</span>  <b>A</b>verage <b>U</b>nit <b>R</b>etail
+<span class="hl">RPV</span>  <b>R</b>evenue <b>P</b>er <b>V</b>isit</pre>
+
+  <h2>The tree</h2>
+  <pre class="tree">
+          D      O     D
+<span class="hl">RPV</span>  ≡   ───  = ─── · ───   =  <span class="hl">CVR</span> · <span class="hl">AOV</span>        O cancels — exact algebra
+          V      V     O
+<span class="dim"><b>R</b>evenue <b>P</b>er <b>V</b>isit ≡ <b>C</b>on<b>V</b>ersion <b>R</b>ate × <b>A</b>verage <b>O</b>rder <b>V</b>alue</span>
+                             │
+                             ├─  U/O  =  <span class="hl">UPT</span>   <span class="dim">units per transaction (basket size)</span>
+                             └─  D/U  =  <span class="hl">AUR</span>   <span class="dim">average unit retail (item price)</span>
+
+<span class="hl">RPV ≡ CVR · UPT · AUR</span>              the full decomposition
+<span class="dim"><b>R</b>evenue <b>P</b>er <b>V</b>isit ≡ <b>C</b>on<b>V</b>ersion <b>R</b>ate × <b>U</b>nits <b>P</b>er <b>T</b>ransaction × <b>A</b>verage <b>U</b>nit <b>R</b>etail</span></pre>
+
+  <h2>Lift (ℓ)</h2>
+  <pre class="formula">ℓ = T/C − 1                      e.g. 3.6% / 3.0% − 1 = <span class="hl">+20%</span>
+<span class="dim">lift = test ÷ control − 1</span>
+
+lifts compound multiplicatively through the tree:
+(1 + ℓ<sub>RPV</sub>) = (1 + ℓ<sub>CVR</sub>) · (1 + ℓ<sub>AOV</sub>)
+<span class="dim">(1 + <b>R</b>evenue-<b>P</b>er-<b>V</b>isit lift) = (1 + <b>C</b>on<b>V</b>ersion-<b>R</b>ate lift) × (1 + <b>A</b>verage-<b>O</b>rder-<b>V</b>alue lift)</span></pre>
+
+  <h2>The decomposition recipe (move #1 on any RPV claim)</h2>
+  <ol>
+    <li>Compute CVR lift and AOV lift for the same period.</li>
+    <li>Whichever leg moved is where the story lives — the ledger always closes.</li>
+    <li>If AOV moved: split into UPT vs AUR, then check order counts — at &lt;50 orders/arm suspect a whale before a cause.</li>
+    <li>If CVR moved: check the upstream funnel gate (cart-add rate) — a real behavioral cause must pass through it.</li>
+  </ol>
+
+  <h2>Which leg can a cause even reach?</h2>
+  <div class="tablewrap"><table>
+    <tr><th>Claimed cause</th><th>Legs it can touch</th><th>Legs it cannot</th></tr>
+    <tr><td>Page speed / latency</td><td>CVR (via funnel exits)</td><td>AOV, UPT, AUR</td></tr>
+    <tr><td>Recommendation model</td><td>CVR, UPT, AUR</td><td>— (all reachable)</td></tr>
+    <tr><td>Pricing / promos</td><td>AUR, CVR</td><td>—</td></tr>
+    <tr><td>A whale order</td><td>AOV (as noise)</td><td>CVR</td></tr>
+  </table></div>
+  <p class="note">A cause with no path to the moved leg is not the cause. This one row-lookup killed the
+  "latency cost us revenue" story: the moved leg was AOV, which latency cannot reach.</p>
+
+  <div class="trapbox"><span class="label">Trap</span>
+  Never diagnose from RPV directly — it inherits the noise of <em>both</em> legs and is the least
+  readable series on the dashboard. Decompose first, always.</div>
+
+  <p class="foot">Companion lesson: <a href="../lessons/0001-the-metric-ledger.html">0001 · The Metric Ledger</a> ·
+  Terms: <a href="glossary.html">glossary</a></p>
+</div>
+<script src="../assets/manifest.js"></script>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

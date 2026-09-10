@@ -1,0 +1,314 @@
+/* Data Analysis from First Principles — shared course stylesheet.
+   Identity: the quantitative ledger. Cool paper, ink navy, ruled lines.
+   Single deliberate light theme (these documents are printed); every
+   surface painted explicitly. */
+
+:root {
+  --paper: #fafbfc;
+  --ink: #1e2933;
+  --muted: #5b6b78;
+  --rule: #d8e0e6;
+  --accent: #0f766e;      /* math, wins, links */
+  --accent-soft: #e4f1ef;
+  --trap: #b3372f;        /* traps and warnings only */
+  --trap-soft: #f9ebe9;
+  --code-bg: #f0f3f5;
+  --serif: "Charter", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.55;
+}
+
+/* Wide page for big screens: tables, formulas, code, and simulators span the
+   full width; bare prose stays capped near a readable measure (Tufte-style
+   text column with wide figures). */
+.page {
+  max-width: 72em;
+  margin: 0 auto;
+  padding: 3rem 2rem 5rem;
+}
+.page > p, .dek, .page > ol, .page > ul, dl {
+  max-width: 48em;
+}
+.win, .say, .trapbox, details, .quiz {
+  max-width: 54em;
+}
+
+/* ---- masthead ---- */
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.6rem;
+  margin-bottom: 2.2rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.eyebrow a { color: var(--muted); }
+
+h1 {
+  font-size: 2.1rem;
+  line-height: 1.15;
+  margin: 0 0 0.4rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.dek {
+  font-size: 1.08rem;
+  color: var(--muted);
+  margin: 0 0 2.4rem;
+  font-style: italic;
+}
+
+h2 {
+  font-size: 1.28rem;
+  margin: 2.6rem 0 0.8rem;
+  font-weight: 700;
+}
+h2 .no {
+  font-family: var(--mono);
+  font-weight: 400;
+  font-size: 0.85rem;
+  color: var(--accent);
+  margin-right: 0.55em;
+}
+h3 { font-size: 1.05rem; margin: 1.8rem 0 0.5rem; }
+
+p { margin: 0 0 1rem; }
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+strong { font-weight: 700; }
+
+/* ---- the win box ---- */
+.win {
+  background: var(--accent-soft);
+  border-left: 3px solid var(--accent);
+  padding: 0.9rem 1.1rem;
+  margin: 0 0 2rem;
+  font-size: 0.98rem;
+}
+.win .label, .trapbox .label, .say .label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+}
+.win .label { color: var(--accent); }
+
+/* ---- trap callout ---- */
+.trapbox {
+  background: var(--trap-soft);
+  border-left: 3px solid var(--trap);
+  padding: 0.9rem 1.1rem;
+  margin: 1.4rem 0;
+  font-size: 0.95rem;
+}
+.trapbox .label { color: var(--trap); }
+
+/* ---- "how you'd say it" stakeholder beat ---- */
+.say {
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 0.9rem 1.1rem;
+  margin: 1.4rem 0;
+  font-size: 0.98rem;
+  background: #ffffff;
+}
+.say .label { color: var(--muted); }
+.say q { font-style: italic; }
+
+/* ---- formulas & trees ---- */
+.formula, pre.tree {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  background: #ffffff;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  margin: 1.1rem 0 1.4rem;
+}
+.formula .hl, pre.tree .hl { color: var(--accent); font-weight: 700; }
+.formula .dim, pre.tree .dim { color: var(--muted); }
+
+/* ---- code ---- */
+pre.ts {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  background: var(--code-bg);
+  border-radius: 4px;
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  margin: 1.1rem 0 1.4rem;
+}
+code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  background: var(--code-bg);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+pre code { background: none; padding: 0; }
+
+/* ---- tables ---- */
+.tablewrap { overflow-x: auto; margin: 1.1rem 0 1.4rem; }
+table {
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+  min-width: 60%;
+}
+th, td {
+  text-align: right;
+  padding: 0.42rem 0.9rem;
+  border-bottom: 1px solid var(--rule);
+}
+th:first-child, td:first-child { text-align: left; padding-left: 0; }
+th {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 400;
+}
+td.neg { color: var(--trap); }
+td.pos { color: var(--accent); }
+
+/* ---- sidenotes ---- */
+.note {
+  font-size: 0.85rem;
+  color: var(--muted);
+  border-top: 1px solid var(--rule);
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+}
+
+/* ---- reveal (retrieval practice) ---- */
+details {
+  margin: 1rem 0 1.4rem;
+  border: 1px dashed var(--rule);
+  border-radius: 4px;
+  padding: 0.7rem 1rem;
+  background: #ffffff;
+}
+details summary {
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+details[open] summary { margin-bottom: 0.7rem; }
+
+/* ---- quiz (markup rendered by quiz.js) ---- */
+.quiz { margin: 1.4rem 0; }
+.quiz .qq {
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: #ffffff;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1rem;
+}
+.quiz .qtext { font-weight: 700; margin-bottom: 0.7rem; }
+.quiz button.choice {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-size: 0.92rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 0.5rem 0.8rem;
+  margin: 0.35rem 0;
+  cursor: pointer;
+  color: var(--ink);
+}
+.quiz button.choice:hover { border-color: var(--accent); }
+.quiz .qq.answered button.choice { cursor: default; }
+.quiz button.choice.right { background: var(--accent-soft); border-color: var(--accent); }
+.quiz button.choice.wrong { background: var(--trap-soft); border-color: var(--trap); }
+.quiz .explain {
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin-top: 0.6rem;
+  border-top: 1px solid var(--rule);
+  padding-top: 0.6rem;
+}
+.quiz .score {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+/* ---- interactive distribution widgets (assets/bellcurve.js) ---- */
+.bellwidget {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: #ffffff;
+  padding: 1rem 1.2rem;
+  margin: 1.1rem 0 1.4rem;
+}
+.bellwidget canvas { width: 100%; height: auto; display: block; }
+.bellbar { display: flex; align-items: center; gap: 1rem; margin-top: 0.6rem; flex-wrap: wrap; }
+.bellbar input[type="range"] { flex: 1 1 14em; accent-color: var(--accent); }
+.bellread { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+.bellread b { color: var(--accent); }
+.bellread .bad { color: var(--trap); }
+
+/* ---- course-wide nav strip (injected by assets/nav.js) ---- */
+.course-nav {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.4rem;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: #ffffff;
+  margin: -1.2rem 0 2rem;
+}
+.course-nav a { color: var(--accent); text-decoration: none; }
+.course-nav a:hover { text-decoration: underline; }
+.course-nav .here { color: var(--ink); font-weight: 700; }
+.course-nav .grp { white-space: nowrap; }
+
+/* ---- footer ---- */
+.foot {
+  margin-top: 3.5rem;
+  border-top: 1px solid var(--rule);
+  padding-top: 1.2rem;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+.foot .nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 0.8rem; }
+
+/* ---- print ---- */
+@media print {
+  body { font-size: 11pt; background: #fff; }
+  .course-nav { display: none; }
+  .page { max-width: none; padding: 0; }
+  .quiz button.choice { border: 1px solid #bbb; }
+  a { color: var(--ink); }
+}

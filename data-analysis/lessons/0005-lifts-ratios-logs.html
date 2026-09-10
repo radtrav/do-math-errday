@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 0005 · Lifts, Ratios &amp; Logs</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">
+    <span>Lesson 0005 · Data Analysis from First Principles</span>
+    <span><a href="../reference/formula-sheet.html">formula sheet</a> · <a href="../reference/notation-decoder.html">notation decoder</a> · <a href="../reference/glossary.html">glossary</a></span>
+  </div>
+
+  <h1>Lifts, Ratios &amp; Logs</h1>
+  <p class="dek">Percentages are a broken language for multiplicative facts. Logarithms are the coordinate system where growth math becomes honest addition.</p>
+
+  <div class="win"><span class="label">The win</span>
+  By the end (~10 min): you can catch the three ways percentages mislead (asymmetry, fake addition,
+  base confusion), undo any lift exactly, and convert a multiplicative story to log space when the
+  math needs to be honest.</div>
+
+  <h2><span class="no">01</span>Percentages commit three sins</h2>
+
+  <p><strong>Sin 1 — asymmetry.</strong> −10% is not the opposite of +10%. To undo a lift you need its
+  <em>reciprocal</em>, not its negation:</p>
+  <pre class="formula">undo(ℓ) = 1/(1+ℓ) − 1
+<span class="dim">the lift that exactly reverses ℓ = one over (one plus ℓ), minus one</span>
+
+undo(−10%) = 1/0.9 − 1 = <span class="hl">+11.1%</span>        undo(−50%) = 1/0.5 − 1 = <span class="hl">+100%</span></pre>
+  <p>Down moves are always bigger than the same-numbered up move — a stock that loses half needs to double.</p>
+
+  <p><strong>Sin 2 — fake addition.</strong> Lifts compound multiplicatively (lesson 0001's rectangle:
+  the corner term ab). +10% and −10% net −1%, and the error grows with the square of the moves.</p>
+
+  <p><strong>Sin 3 — base confusion.</strong> "CVR went up 1%" — from 2.0%, is that 2.02% (+1% relative)
+  or 3.0% (+1 <em>percentage point</em> = +50% relative)? Fifty-fold ambiguity in one sentence.
+  Say <strong>pp</strong> for absolute moves of a rate, <strong>%</strong> only for relative ones.</p>
+
+  <h2><span class="no">02</span>The fix: logs make growth additive</h2>
+  <p>From the decoder, the one identity: log turns × into +. Apply it to everything above:</p>
+
+  <pre class="formula">log(T/C) = log T − log C
+<span class="dim">a ratio becomes a difference — the "log lift", measured in log points</span>
+
+log(1+ℓ<sub>RPV</sub>) = log(1+ℓ<sub>CVR</sub>) + log(1+ℓ<sub>AOV</sub>)
+<span class="dim">in log space the ledger identity compounds by PLAIN ADDITION — exactly, not approximately</span>
+
+log(1+x) ≈ x  (small x)
+<span class="dim">for small lifts, log points ≈ the percentage — a +3% lift is ≈ +0.03 log points</span></pre>
+
+  <p>And the asymmetry dissolves: undoing a move is just negating it —
+  log(1.1) = +0.0953 and log(1/1.1) = −0.0953, a perfect mirror. The reason ±10% "don't cancel" in
+  percent space is that they were never equal-sized moves; log space shows their true weights
+  (log 1.1 = +0.095 vs log 0.9 = −0.105).</p>
+
+  <h2><span class="no">03</span>The mirror — drag a lift, see both spaces</h2>
+  <p>Top axis: percent space. Bottom axis: log space. The green dot is your lift, the red dot is the
+  lift that exactly undoes it. In percent space the pair sits lopsided; in log space they are always
+  perfect mirror images around zero. Drag through +100% and watch its undo pin to −50%:</p>
+  <div id="mirror"></div>
+
+  <h2><span class="no">04</span>The real month, both ways</h2>
+  <p>Mobile cumulative, from the Adobe sheet: CVR lift +11.8%, AOV lift −7.8%. RPV:</p>
+  <pre class="formula">percent space:  (1.118) × (0.922) = 1.0308  →  <span class="hl">+3.1%</span>   (naive addition says +4.0%)
+log space:      +0.1116 + (−0.0812) = +0.0304  →  e<sup>0.0304</sup> = 1.0308  ✓ same answer, by addition</pre>
+
+  <div class="trapbox"><span class="label">Trap — never average daily lift percentages</span>
+  The arithmetic mean of ratios is biased upward: a +100% day and a −50% day "average" to +25%, but
+  ×2 × ×0.5 = ×1 — the true net is <strong>0%</strong>. This is live in our data: desktop daily RPV
+  lifts <em>average</em> +41%, while the honest cumulative is +11.7%. To summarize a run of lifts,
+  multiply them out (or average the <em>logs</em> — the geometric mean); never average the percents.</div>
+
+  <details><summary>check yourself: three quick conversions</summary>
+    <p>1) A metric fell 20%. What lift restores it exactly? &nbsp;
+    2) CVR moved 2.4% → 3.0%. Express in pp and in %. &nbsp;
+    3) Daily lifts +50%, −40%, +10%. Net?</p>
+    <pre class="formula">1) undo(−20%) = 1/0.8 − 1 = <span class="hl">+25%</span>
+2) <span class="hl">+0.6pp</span>, which is <span class="hl">+25%</span> relative — say both, never a bare "up 0.6%"
+3) 1.5 × 0.6 × 1.1 = 0.99 → <span class="hl">−1%</span>  (the naive sum says +20% — sin 2 at work)</pre>
+  </details>
+
+  <h2><span class="no">05</span>Check yourself</h2>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="say"><span class="label">How you'd say it to a stakeholder</span>
+  <q>Percentages don't add — they stack like interest. Up 30% then down 30% isn't even, it's down 9%,
+  because the drop was measured off a bigger base. So when I combine a conversion gain with an
+  order-size loss, I multiply the moves out rather than netting them in my head — that's why my number
+  is sometimes a point or two off from the quick mental math, and it's the accurate one.</q></div>
+
+  <h2><span class="no">06</span>Go deeper</h2>
+  <p><strong>Primary source:</strong> Spiegelhalter,
+  <em><a href="https://www.goodreads.com/book/show/43722897-the-art-of-statistics">The Art of Statistics</a></em>,
+  ch. 1 — on relative vs absolute risk: the pp-vs-% confusion is the single most common way honest
+  numbers mislead the public, and his examples are devastating.</p>
+
+  <p class="note">Ask your teacher (the agent) anything unclear. Good follow-ups: "why is the mean of
+  ratios biased up but the mean of logs isn't?" (Jensen's inequality, gently), "when is naive addition
+  of lifts acceptable?" (when moves are small enough that the corner terms are dust).</p>
+
+  <div class="foot">
+    <span>New glossary terms: <a href="../reference/glossary.html#pp">percentage point</a>,
+    <a href="../reference/glossary.html#logpoints">log points</a>,
+    <a href="../reference/glossary.html#geomean">geometric mean</a></span>
+    <div class="nav">
+      <span><a href="0004-reading-while-running.html">← 0004 Reading While Running</a></span>
+      <span>Next: 0006 · Correlation — and the third variable in the room</span>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/manifest.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/quiz.js"></script>
+<script src="../assets/bellcurve.js"></script>
+<script>
+// ---- the mirror: a lift and its undo, in percent space vs log space ----
+(function () {
+  const root = document.getElementById("mirror");
+  root.classList.add("bellwidget");
+  const canvas = document.createElement("canvas");
+  canvas.width = 900; canvas.height = 240;
+  const bar = document.createElement("div");
+  bar.className = "bellbar";
+  const slider = document.createElement("input");
+  Object.assign(slider, { type: "range", min: -0.75, max: 3, step: 0.01, value: 1 });
+  const readout = document.createElement("div");
+  readout.className = "bellread";
+  bar.appendChild(slider); bar.appendChild(readout);
+  root.appendChild(canvas); root.appendChild(bar);
+  const ctx = canvas.getContext("2d");
+  const C = getComputedStyle(document.documentElement);
+  const col = (v, fb) => (C.getPropertyValue(v) || fb).trim() || fb;
+  const ink = col("--ink", "#1e2933"), muted = col("--muted", "#5b6b78"),
+        accent = col("--accent", "#0f766e"), trap = col("--trap", "#b3372f"),
+        rule = col("--rule", "#d8e0e6");
+
+  const W = canvas.width, L = 60, R = 30;
+  const Y1 = 70, Y2 = 180; // the two axes
+  // percent axis: linear in lift over [-0.75, 3]
+  const xPct = l => L + (l + 0.75) / 3.75 * (W - L - R);
+  // log axis: linear in log(1+l) over [log 0.25, log 4]
+  const LO = Math.log(0.25), HI = Math.log(4);
+  const xLog = l => L + (Math.log(1 + l) - LO) / (HI - LO) * (W - L - R);
+
+  function axis(y, label, ticks, xf) {
+    ctx.strokeStyle = ink; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(W - R, y); ctx.stroke();
+    ctx.fillStyle = muted; ctx.font = "12px ui-monospace, Menlo, monospace";
+    ctx.textAlign = "center";
+    for (const [l, t] of ticks) {
+      ctx.strokeStyle = rule;
+      ctx.beginPath(); ctx.moveTo(xf(l), y - 6); ctx.lineTo(xf(l), y + 6); ctx.stroke();
+      ctx.fillText(t, xf(l), y + 22);
+    }
+    ctx.textAlign = "left";
+    ctx.fillText(label, L, y - 26);
+  }
+
+  function dot(x, y, c) {
+    ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, 7, 0, 2 * Math.PI); ctx.fill();
+  }
+
+  function draw() {
+    const l = parseFloat(slider.value);
+    const undo = 1 / (1 + l) - 1;
+    ctx.clearRect(0, 0, W, canvas.height);
+    axis(Y1, "PERCENT SPACE (lift) — the pair sits lopsided", [
+      [-0.5, "−50%"], [0, "0"], [1, "+100%"], [2, "+200%"], [3, "+300%"],
+    ], xPct);
+    axis(Y2, "LOG SPACE (log points) — always a perfect mirror around 0", [
+      [-0.75, "×¼"], [-0.5, "×½"], [0, "×1"], [1, "×2"], [3, "×4"],
+    ], xLog);
+    // zero anchors
+    ctx.strokeStyle = rule; ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(xLog(0), Y2 - 30); ctx.lineTo(xLog(0), Y2 + 8); ctx.stroke();
+    ctx.setLineDash([]);
+    // dots: lift (accent) and its undo (trap) on both axes
+    dot(xPct(l), Y1, accent); dot(xPct(undo), Y1, trap);
+    dot(xLog(l), Y2, accent); dot(xLog(undo), Y2, trap);
+    const pct = x => (x >= 0 ? "+" : "") + (x * 100).toFixed(1) + "%";
+    const lp = x => (x >= 0 ? "+" : "") + Math.log(1 + x).toFixed(3);
+    readout.innerHTML =
+      `lift <b>${pct(l)}</b> · undo <span class="bad">${pct(undo)}</span> · ` +
+      `log points: <b>${lp(l)}</b> / <span class="bad">${lp(undo)}</span> — equal and opposite`;
+  }
+  slider.addEventListener("input", draw);
+  draw();
+})();
+
+// ---- quiz ----
+renderQuiz(document.getElementById("quiz"), [
+  {
+    q: "A metric dropped 20%. The lift that exactly restores it is…",
+    choices: [
+      "+18%",
+      "+20%",
+      "+25%",
+      "+80%",
+    ],
+    answer: 2,
+    explain: "undo(ℓ) = 1/(1+ℓ) − 1 = 1/0.8 − 1 = +25%. Negating a percentage never undoes it; only the reciprocal does.",
+  },
+  {
+    q: "A +100% day followed by a −50% day nets to…",
+    choices: [
+      "−25%",
+      "0%",
+      "+25%",
+      "+50%",
+    ],
+    answer: 1,
+    explain: "×2 then ×0.5 = ×1. The arithmetic average of the two lifts (+25%) is the biased number the trap box warns about.",
+  },
+  {
+    q: "CVR moved 2.0% → 2.5%. The unambiguous statement is…",
+    choices: [
+      "up half a point",
+      "up 0.5pp, i.e. +25%",
+      "up 25 percent points",
+      "up 0.5%, i.e. +2.5%",
+    ],
+    answer: 1,
+    explain: "Absolute move in pp (+0.5pp), relative move in % (+25%). A bare 'up 0.5%' is fifty-fold ambiguous — sin 3.",
+  },
+  {
+    q: "We decompose variance in LOG lift rather than percent lift because…",
+    choices: [
+      "logs make the legs add",
+      "logs remove all outliers",
+      "logs shrink the variance",
+      "percent lifts can't vary",
+    ],
+    answer: 0,
+    explain: "log(1+ℓ_RPV) = log(1+ℓ_CVR) + log(1+ℓ_AOV) exactly — and var(X+Y) = varX + varY + 2cov only applies to sums. Logs buy the sum.",
+  },
+  {
+    q: "For small lifts, log points and percentages…",
+    choices: [
+      "agree almost exactly",
+      "differ by a factor",
+      "have opposite signs",
+      "cannot be compared",
+    ],
+    answer: 0,
+    explain: "log(1+x) ≈ x for small x: a +3% lift is +0.0296 log points. The languages only diverge as moves get big — which is exactly when percent intuition starts lying.",
+  },
+]);
+</script>
+</body>
+</html>

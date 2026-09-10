@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Formula Sheet — Data Analysis from First Principles</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(19em, 1fr)); gap: 0.9rem; margin: 1rem 0 2rem; }
+  .card {
+    border: 1px solid var(--rule); border-radius: 6px; background: #fff;
+    padding: 0.9rem 1.1rem; display: flex; flex-direction: column; gap: 0.45rem;
+  }
+  .card .f {
+    font-family: var(--mono); font-size: 0.95rem; color: var(--ink);
+    overflow-x: auto; white-space: nowrap;
+  }
+  .card .f .hl { color: var(--accent); font-weight: 700; }
+  .card .twin { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+  .card .gut { font-size: 0.9rem; }
+  .card .src { margin-top: auto; }
+  .card .src a {
+    font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.08em;
+    text-transform: uppercase; text-decoration: none;
+    background: var(--accent-soft); color: var(--accent);
+    padding: 0.15rem 0.55rem; border-radius: 999px;
+  }
+  h2 { border-bottom: 1px solid var(--rule); padding-bottom: 0.3rem; }
+  @media print { .card { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow"><span>Reference · The Formula Sheet</span><span>print me</span></div>
+  <h1>The Formula Sheet</h1>
+  <p class="dek">Every load-bearing formula in the course — the symbols, the sentence, the intuition. Each card links back to the lesson that builds it from scratch.</p>
+
+  <h2>The ledger <span class="note">(lesson 0001)</span></h2>
+  <div class="cards">
+    <div class="card">
+      <div class="f"><span class="hl">RPV ≡ CVR · AOV</span></div>
+      <div class="twin">Revenue Per Visit ≡ ConVersion Rate × Average Order Value</div>
+      <div class="gut">Revenue splits into <em>how often</em> × <em>how big</em>. No dollar can move RPV without moving a leg — decompose before believing any story.</div>
+      <div class="src"><a href="../lessons/0001-the-metric-ledger.html">lesson 0001</a></div>
+    </div>
+    <div class="card">
+      <div class="f">RPV ≡ CVR · <span class="hl">UPT · AUR</span></div>
+      <div class="twin">…× Units Per Transaction × Average Unit Retail</div>
+      <div class="gut">And <em>how big</em> splits into items-per-basket × price-per-item. AOV stories are UPT stories or AUR stories — find out which.</div>
+      <div class="src"><a href="../lessons/0001-the-metric-ledger.html">lesson 0001</a></div>
+    </div>
+    <div class="card">
+      <div class="f"><span class="hl">ℓ = T/C − 1</span></div>
+      <div class="twin">lift = test ÷ control − 1</div>
+      <div class="gut">Read lift, never one arm's raw trend: promo days, traffic mix, weather — anything hitting both arms cancels in the ratio.</div>
+      <div class="src"><a href="../lessons/0001-the-metric-ledger.html">lesson 0001</a></div>
+    </div>
+    <div class="card">
+      <div class="f">(1+ℓ<sub>RPV</sub>) = (1+ℓ<sub>CVR</sub>)(1+ℓ<sub>AOV</sub>)</div>
+      <div class="twin">(1 + RPV lift) = (1 + CVR lift) × (1 + AOV lift)</div>
+      <div class="gut">Lifts compound multiplicatively: (1+a)(1+b) = 1 + a + b + <strong>ab</strong>. The corner term ab is what additive intuition misses — ±10% nets −1%, ±50% nets −25% (see the rectangle in the lesson).</div>
+      <div class="src"><a href="../lessons/0001-the-metric-ledger.html">lesson 0001</a></div>
+    </div>
+  </div>
+
+  <h2>Counting noise <span class="note">(lesson 0002)</span></h2>
+  <div class="cards">
+    <div class="card">
+      <div class="f"><span class="hl">SE(p̂) = √( p(1−p) / n )</span></div>
+      <div class="twin">Standard Error = √(one visit's variance ÷ visits)</div>
+      <div class="gut">How much an observed rate wobbles across identical days. The error bar every daily CVR silently carries.</div>
+      <div class="src"><a href="../lessons/0002-counting-noise.html">lesson 0002</a></div>
+    </div>
+    <div class="card">
+      <div class="f">noise ∝ <span class="hl">1/√n</span></div>
+      <div class="twin">noise shrinks with the square root of sample size</div>
+      <div class="gut">Halving noise costs 4× the data. Why pooling weeks works and staring at days can't.</div>
+      <div class="src"><a href="../lessons/0002-counting-noise.html">lesson 0002</a></div>
+    </div>
+    <div class="card">
+      <div class="f">O ± √O &nbsp;→&nbsp; rel. noise ≈ <span class="hl">1/√O</span></div>
+      <div class="twin">a count of rare events wobbles by its own square root</div>
+      <div class="gut">The mental shortcut: 10 orders = ±32% instrument, 250 orders = ±6%. Run it before any argument about a daily number.</div>
+      <div class="src"><a href="../lessons/0002-counting-noise.html">lesson 0002</a></div>
+    </div>
+    <div class="card">
+      <div class="f">SE<sub>Δ</sub> = <span class="hl">√(SE<sub>C</sub>² + SE<sub>T</sub>²)</span></div>
+      <div class="twin">gap noise = hypotenuse of the two arms' noises</div>
+      <div class="gut">A test-vs-control gap carries both arms' wobble; independent noises add in quadrature, like perpendicular distances.</div>
+      <div class="src"><a href="../lessons/0002-counting-noise.html">lesson 0002</a></div>
+    </div>
+    <div class="card">
+      <div class="f"><span class="hl">z = Δ / SE<sub>Δ</sub></span> &nbsp;·&nbsp; |z|≥2 decide, |z|≥3 breakage</div>
+      <div class="twin">z = the gap, measured in noise units</div>
+      <div class="gut">"Is this gap bigger than what identical arms produce by luck?" z&lt;2 = breathing. The 5% guarantee belongs to ONE pre-committed look.</div>
+      <div class="src"><a href="../lessons/0002-counting-noise.html">lesson 0002</a></div>
+    </div>
+    <div class="card">
+      <div class="f">CI = Δ ± 2·SE<sub>Δ</sub></div>
+      <div class="twin">confidence interval = gap ± two noise units</div>
+      <div class="gut">z, the CI, and "stat sig" are one computation in three costumes: |z|≥2 ⟺ the 95% CI excludes zero ⟺ p ≤ 0.05. (Formalized in lesson 0007.)</div>
+      <div class="src"><a href="../lessons/0002-counting-noise.html">lesson 0002</a></div>
+    </div>
+  </div>
+
+  <h2>Heavy tails <span class="note">(lesson 0003)</span></h2>
+  <div class="cards">
+    <div class="card">
+      <div class="f">x̄ = (1/n) Σ xᵢ &nbsp;→&nbsp; each order votes at weight <span class="hl">1/n</span></div>
+      <div class="twin">every dollar enters the average, uncapped</div>
+      <div class="gut">On a 10-order day one $1,500 basket contributes $150 of AOV by itself. Breakdown point: mean 0%, median 50%.</div>
+      <div class="src"><a href="../lessons/0003-heavy-tails-and-whales.html">lesson 0003</a></div>
+    </div>
+    <div class="card">
+      <div class="f"><span class="hl">whale ≈ total − (n−1) × typical</span></div>
+      <div class="twin">back the big order out of the day's demand</div>
+      <div class="gut">The 30-second audit for any suspicious AOV day. Aug 24: 2,527 − 9×110 ≈ $1,537 — one basket was 61% of the arm's revenue.</div>
+      <div class="src"><a href="../lessons/0003-heavy-tails-and-whales.html">lesson 0003</a></div>
+    </div>
+    <div class="card">
+      <div class="f">cap at p99, then average</div>
+      <div class="twin">winsorized mean: clip the top 1% of order values first</div>
+      <div class="gut">A small deliberate bias bought in exchange for a big variance cut — the industry-standard revenue metric. Median answers "typical"; capped mean answers "total, whale-resistant".</div>
+      <div class="src"><a href="../lessons/0003-heavy-tails-and-whales.html">lesson 0003</a></div>
+    </div>
+  </div>
+
+  <h2>Reading while running <span class="note">(lesson 0004)</span></h2>
+  <div class="cards">
+    <div class="card">
+      <div class="f"><span class="hl">E[X<sub>next</sub> | X<sub>today</sub>] = μ</span></div>
+      <div class="twin">tomorrow's expectation ignores today's extreme</div>
+      <div class="gut">Regression to the mean: troughs recover by arithmetic. Anything shipped at a trough gets credit it didn't earn.</div>
+      <div class="src"><a href="../lessons/0004-reading-while-running.html">lesson 0004</a></div>
+    </div>
+    <div class="card">
+      <div class="f">P(recovery after a 2σ-bad day) = Φ(2) ≈ <span class="hl">98%</span></div>
+      <div class="twin">a placebo shipped on a terrible day "works" 98% of the time</div>
+      <div class="gut">The engine of the tampering loop, priced exactly. A fix must beat this number, not just beat yesterday.</div>
+      <div class="src"><a href="../lessons/0004-reading-while-running.html">lesson 0004</a></div>
+    </div>
+    <div class="card">
+      <div class="f">peeking: 5% → <span class="hl">≈26%</span></div>
+      <div class="twin">continuous checking inflates the false-alarm rate 5-fold</div>
+      <div class="gut">Stop-at-first-significance lets noise take its best of many tries. Legal versions: scheduled readouts, or sequential bounds.</div>
+      <div class="src"><a href="../lessons/0004-reading-while-running.html">lesson 0004</a></div>
+    </div>
+    <div class="card">
+      <div class="f">detection time ∝ <span class="hl">1/effect²</span></div>
+      <div class="twin">half the effect takes four times as long to prove</div>
+      <div class="gut">Catastrophes clear |z|≥3 in days; only small losses take weeks — and those are invisible to the daily dashboard too. "No time to wait" refutes itself.</div>
+      <div class="src"><a href="../lessons/0004-reading-while-running.html">lesson 0004</a></div>
+    </div>
+  </div>
+
+  <h2>Lifts, ratios &amp; logs <span class="note">(lesson 0005)</span></h2>
+  <div class="cards">
+    <div class="card">
+      <div class="f"><span class="hl">undo(ℓ) = 1/(1+ℓ) − 1</span></div>
+      <div class="twin">the lift that exactly reverses ℓ is its reciprocal, not its negation</div>
+      <div class="gut">undo(−20%) = +25%; undo(−50%) = +100%. Down moves are always bigger than the same-numbered up move — the stock that halves must double.</div>
+      <div class="src"><a href="../lessons/0005-lifts-ratios-logs.html">lesson 0005</a></div>
+    </div>
+    <div class="card">
+      <div class="f">log(1+ℓ<sub>RPV</sub>) = log(1+ℓ<sub>CVR</sub>) + log(1+ℓ<sub>AOV</sub>)</div>
+      <div class="twin">in log space the ledger compounds by plain addition — exactly</div>
+      <div class="gut">Logs are the coordinate system where multiplicative facts add: undoing = negating, compounding = summing, and variance decomposes.</div>
+      <div class="src"><a href="../lessons/0005-lifts-ratios-logs.html">lesson 0005</a></div>
+    </div>
+    <div class="card">
+      <div class="f">log(1+x) ≈ <span class="hl">x</span>&nbsp;&nbsp;(small x)</div>
+      <div class="twin">for small lifts, log points ≈ the percentage</div>
+      <div class="gut">+3% ≈ +0.03 log points. The two languages agree for small moves and diverge for big ones — precisely when percent intuition starts lying.</div>
+      <div class="src"><a href="../lessons/0005-lifts-ratios-logs.html">lesson 0005</a></div>
+    </div>
+    <div class="card">
+      <div class="f">never average ratios — <span class="hl">multiply them out</span></div>
+      <div class="twin">the arithmetic mean of lifts is biased upward; average the logs instead (geometric mean)</div>
+      <div class="gut">+100% and −50% "average" +25% but net exactly 0%. Live example: desktop daily RPV lifts average +41% while the true cumulative is +11.7%.</div>
+      <div class="src"><a href="../lessons/0005-lifts-ratios-logs.html">lesson 0005</a></div>
+    </div>
+  </div>
+
+  <p class="foot">One card per load-bearing formula; new lessons add theirs on arrival.
+  Symbols unclear? <a href="notation-decoder.html">The Notation Decoder</a>.</p>
+</div>
+<script src="../assets/manifest.js"></script>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

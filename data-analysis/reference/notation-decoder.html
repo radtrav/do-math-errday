@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Notation Decoder — Reference</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  table.decoder { width: 100%; }
+  table.decoder td, table.decoder th { text-align: left; vertical-align: top; }
+  td.sym { font-size: 1.05rem; white-space: nowrap; font-variant-numeric: normal; }
+  td.read { color: var(--ink); font-size: 0.85rem; max-width: 16em; }
+  td.read q { font-style: italic; }
+  td.read .cas { color: var(--muted); display: block; margin-top: 0.15rem; font-size: 0.8rem; }
+  td.ts { font-family: var(--mono); font-size: 0.78rem; }
+  td.why { font-size: 0.82rem; color: var(--muted); }
+  table.atoms td { font-size: 0.85rem; }
+  table.atoms td.sym { font-size: 1rem; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow"><span>Reference · Notation ↔ Speech ↔ TypeScript</span><span><a href="glossary.html">glossary →</a></span></div>
+  <h1>The Notation Decoder</h1>
+  <p class="dek">Math notation is a terse programming language with a spoken form. Every expression below comes three ways: the symbols, how you'd say it out loud, and the TypeScript it compiles to.</p>
+
+  <h2>The pronunciation atoms</h2>
+  <p>These few rules let you read <em>any</em> expression you meet in the wild, not just the ones below.
+  Two grouping tricks: parentheses resolve inside-out, and the spoken parenthesis is the phrase
+  <q>…all over…</q> / a pause.</p>
+  <div class="tablewrap"><table class="decoder atoms">
+    <tr><th>You see</th><th>You say</th></tr>
+    <tr><td class="sym">x<sub>i</sub> &nbsp;·&nbsp; x²</td><td>subscript: <q>x sub i</q> (or just <q>x-i</q>) · superscript: <q>x squared</q>, <q>x to the n</q></td></tr>
+    <tr><td class="sym">x̄ &nbsp;·&nbsp; p̂</td><td><q>x bar</q> (an average of data) · <q>p hat</q> (an estimate)</td></tr>
+    <tr><td class="sym">a/b &nbsp;·&nbsp; √x</td><td><q>a over b</q> · <q>root x</q> / <q>the square root of x</q></td></tr>
+    <tr><td class="sym">f(x) &nbsp;·&nbsp; E[X]</td><td>parentheses/brackets after a name: <q>of</q> — <q>f of x</q>, <q>the expected value of X</q></td></tr>
+    <tr><td class="sym">P(A | B)</td><td>the vertical bar is always <q>given</q></td></tr>
+    <tr><td class="sym">~</td><td><q>is distributed as</q> / <q>follows</q></td></tr>
+    <tr><td class="sym">Σ · Π</td><td><q>the sum over … of …</q> · <q>the product over … of …</q></td></tr>
+    <tr><td class="sym">Δ · ∝ · ≈ · ≡</td><td><q>delta</q> (the gap/change) · <q>is proportional to</q> · <q>is about</q> · <q>is identically equal to</q></td></tr>
+    <tr><td class="sym">μ · σ · ρ · Φ · ℓ</td><td><q>mew</q> · <q>sigma</q> · <q>row</q> · <q>fye</q> · <q>ell</q></td></tr>
+  </table></div>
+
+  <h2>Sums and products</h2>
+  <div class="tablewrap"><table class="decoder">
+    <tr><th>Notation</th><th>Say it out loud</th><th>TypeScript</th><th>Notes</th></tr>
+    <tr><td class="sym" id="sum">Σ<sub>i=1</sub><sup>n</sup> x<sub>i</sub></td>
+        <td class="read"><q>the sum, over i from one to n, of x-sub-i</q><span class="cas">casually: "add up all the x's"</span></td>
+        <td class="ts">xs.reduce((a, x) => a + x, 0)</td>
+        <td class="why">Σ is a for-loop with an accumulator. The bounds are the loop range.</td></tr>
+    <tr><td class="sym" id="prod">Π<sub>i</sub> x<sub>i</sub></td>
+        <td class="read"><q>the product, over i, of x-sub-i</q><span class="cas">casually: "multiply all the x's together"</span></td>
+        <td class="ts">xs.reduce((a, x) => a * x, 1)</td>
+        <td class="why">Same loop, × instead of +. Lifts compound this way.</td></tr>
+    <tr><td class="sym" id="index">x<sub>i</sub></td>
+        <td class="read"><q>x sub i</q><span class="cas">casually: "the i-th x"</span></td>
+        <td class="ts">xs[i]</td>
+        <td class="why">Subscript = array index. Superscript = a power (x², x³) — context disambiguates.</td></tr>
+  </table></div>
+
+  <h2>Averages and expectation</h2>
+  <div class="tablewrap"><table class="decoder">
+    <tr><th>Notation</th><th>Say it out loud</th><th>TypeScript</th><th>Notes</th></tr>
+    <tr><td class="sym" id="mean">x̄ = (1/n) Σ x<sub>i</sub></td>
+        <td class="read"><q>x-bar equals one over n, times the sum of the x-i</q><span class="cas">casually: "x-bar is the average of the x's"</span></td>
+        <td class="ts">sum(xs) / xs.length</td>
+        <td class="why">A bar over a variable = "average of the data I actually have."</td></tr>
+    <tr><td class="sym" id="expect">E[X]</td>
+        <td class="read"><q>the expected value of X</q><span class="cas">casually: "E of X"</span></td>
+        <td class="ts">mean(draw(Infinity))</td>
+        <td class="why">The mean over <em>infinite</em> draws — a property of the process, not the sample. x̄ estimates E[X].</td></tr>
+    <tr><td class="sym" id="mu">μ, σ</td>
+        <td class="read"><q>mew</q>, <q>sigma</q><span class="cas">"the true mean", "the true spread"</span></td>
+        <td class="ts">// true mean, true sd</td>
+        <td class="why">Greek = the process's true value (unknowable); Latin (x̄, s) = your estimate from data.</td></tr>
+  </table></div>
+
+  <h2>Spread</h2>
+  <div class="tablewrap"><table class="decoder">
+    <tr><th>Notation</th><th>Say it out loud</th><th>TypeScript</th><th>Notes</th></tr>
+    <tr><td class="sym" id="var">Var(X) = E[(X − μ)²]</td>
+        <td class="read"><q>the variance of X equals the expected value of, X minus mew, squared</q><span class="cas">casually: "the average squared distance from the mean"</span></td>
+        <td class="ts">mean(xs.map(x => (x - m) ** 2))</td>
+        <td class="why">Squaring kills signs and punishes outliers.</td></tr>
+    <tr><td class="sym" id="sd">σ = √Var(X)</td>
+        <td class="read"><q>sigma equals the square root of the variance of X</q><span class="cas">casually: "root Var"</span></td>
+        <td class="ts">Math.sqrt(variance)</td>
+        <td class="why">Back in the original units. "Daily AOV lift swings ±85%" is a σ.</td></tr>
+    <tr><td class="sym" id="cov">Cov(X, Y)</td>
+        <td class="read"><q>the covariance of X and Y</q><span class="cas">casually: "Cov of X and Y"</span></td>
+        <td class="ts">mean(zip(xs,ys).map(([x,y]) => (x-mx)*(y-my)))</td>
+        <td class="why">Positive = they move together. The 2·Cov term is why co-moving legs amplify RPV swings.</td></tr>
+    <tr><td class="sym" id="corr">ρ, r</td>
+        <td class="read"><q>row</q> / <q>r</q><span class="cas">"the correlation of X and Y"</span></td>
+        <td class="ts">cov(xs, ys) / (sd(xs) * sd(ys))</td>
+        <td class="why">Covariance rescaled to −1…+1. ρ = true, r = estimated from your sample.</td></tr>
+  </table></div>
+
+  <h2>Estimates and noise</h2>
+  <div class="tablewrap"><table class="decoder">
+    <tr><th>Notation</th><th>Say it out loud</th><th>TypeScript</th><th>Notes</th></tr>
+    <tr><td class="sym" id="hat">p̂</td>
+        <td class="read"><q>p-hat</q><span class="cas">"the observed rate" — an estimate of p</span></td>
+        <td class="ts">const pHat = O / V;</td>
+        <td class="why">The hat means "computed from data, not the truth." p̂ estimates p the way x̄ estimates μ.</td></tr>
+    <tr><td class="sym" id="se">SE(p̂) = √(p(1−p)/n)</td>
+        <td class="read"><q>the standard error of p-hat equals the square root of: p, times one-minus-p, all over n</q><span class="cas">note the spoken parenthesis: "all over n" groups the whole numerator</span></td>
+        <td class="ts">Math.sqrt(p * (1 - p) / n)</td>
+        <td class="why">The σ of the <em>estimate itself</em>: how much p̂ wobbles across identical days. Lesson 0002's core formula.</td></tr>
+    <tr><td class="sym" id="z">z = Δ / SE</td>
+        <td class="read"><q>z equals delta over its standard error</q><span class="cas">casually: "the gap in noise units"</span></td>
+        <td class="ts">const z = gap / se;</td>
+        <td class="why">Rule of thumb: |z| &lt; 2 is breathing, not signal. Formalized properly in the p-values lesson.</td></tr>
+  </table></div>
+
+  <h2>Probability</h2>
+  <div class="tablewrap"><table class="decoder">
+    <tr><th>Notation</th><th>Say it out loud</th><th>TypeScript</th><th>Notes</th></tr>
+    <tr><td class="sym" id="prob">P(A)</td>
+        <td class="read"><q>the probability of A</q><span class="cas">casually: "P of A"</span></td>
+        <td class="ts">xs.filter(isA).length / xs.length</td>
+        <td class="why">In the limit — a long-run frequency.</td></tr>
+    <tr><td class="sym" id="cond">P(A | B)</td>
+        <td class="read"><q>the probability of A, given B</q><span class="cas">the bar is ALWAYS "given"</span></td>
+        <td class="ts">xs.filter(isB).filter(isA).length /<br>xs.filter(isB).length</td>
+        <td class="why">Filter to B first, <em>then</em> measure A. Order matters enormously.</td></tr>
+    <tr><td class="sym" id="phi">Φ(z)</td>
+        <td class="read"><q>fye of z</q><span class="cas">"the share of the bell curve below z"</span></td>
+        <td class="ts">shareOfBellBelow(z)  // Φ(2) ≈ 0.977</td>
+        <td class="why">Φ(2) ≈ 97.7% is why a placebo shipped on a 2σ-bad day "works".</td></tr>
+    <tr><td class="sym" id="dist">X ~ Binomial(n, p)</td>
+        <td class="read"><q>X is distributed binomial, n comma p</q><span class="cas">or: "X follows a binomial with n trials at rate p"</span></td>
+        <td class="ts">const X = () => binomialDraw(n, p)</td>
+        <td class="why">~ declares the generator function X was drawn from. Daily orders ~ Binomial(visits, CVR).</td></tr>
+  </table></div>
+
+  <h2>Growth, ratios, logs</h2>
+  <div class="tablewrap"><table class="decoder">
+    <tr><th>Notation</th><th>Say it out loud</th><th>TypeScript</th><th>Notes</th></tr>
+    <tr><td class="sym" id="lift">ℓ = T/C − 1</td>
+        <td class="read"><q>ell equals T over C, minus one</q><span class="cas">casually: "the lift"</span></td>
+        <td class="ts">test / control - 1</td>
+        <td class="why">Our convention (ℓ, script L) for arm-vs-arm relative difference.</td></tr>
+    <tr><td class="sym" id="log">log(ab) = log a + log b</td>
+        <td class="read"><q>log of a-b equals log a plus log b</q><span class="cas">casually: "the log of a product is the sum of the logs"</span></td>
+        <td class="ts">Math.log(a * b) === Math.log(a) + Math.log(b)</td>
+        <td class="why">The most useful identity in this course: multiplicative worlds (RPV = CVR·AOV) become additive, so variance decomposes.</td></tr>
+    <tr><td class="sym" id="exp">e<sup>x</sup>, exp(x)</td>
+        <td class="read"><q>e to the x</q><span class="cas">the inverse of log: it converts log points back to a ratio</span></td>
+        <td class="ts">Math.exp(x)  // Math.exp(Math.log(r)) === r</td>
+        <td class="why">Round trip: ratio → log points (add/decompose there) → exp back to a ratio. e<sup>0.0304</sup> = 1.031 turned the mobile month's log sum back into +3.1%.</td></tr>
+    <tr><td class="sym" id="prop">y ∝ 1/√n</td>
+        <td class="read"><q>y is proportional to one over root n</q><span class="cas">"same shape, unknown constant"</span></td>
+        <td class="ts">y = k / Math.sqrt(n)  // some constant k</td>
+        <td class="why">Sampling error ∝ 1/√n is lesson 0002's core fact.</td></tr>
+    <tr><td class="sym" id="approx">≈, ≡</td>
+        <td class="read"><q>is about</q> / <q>is identically equal to</q><span class="cas">≡ also reads "is true by definition"</span></td>
+        <td class="ts">closeTo(a, b) / true by construction</td>
+        <td class="why">≡ means algebra guarantees it (RPV ≡ CVR·AOV); ≈ means estimation is involved.</td></tr>
+  </table></div>
+
+  <div class="trapbox"><span class="label">Reading rule</span>
+  Read fractions top first, resolve parentheses inside-out, and let <q>all over</q> and pauses do the
+  grouping. If an expression still feels opaque after saying it aloud, expand it into the loop or filter
+  it stands for — the TS column — and it will always be something you already knew.</div>
+
+  <p class="foot">Used by every lesson from 0001 onward. New symbols get a row here the first time a lesson needs them.
+  · <a href="formula-sheet.html">formula sheet</a> · <a href="metric-identities.html">identity tree</a> · <a href="glossary.html">glossary</a></p>
+</div>
+<script src="../assets/manifest.js"></script>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

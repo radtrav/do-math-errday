@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 0001 · The Metric Ledger</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .ledger table { width: 100%; }
+  .ledger input {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.85rem;
+    width: 6.5em; text-align: right; padding: 0.25rem 0.4rem;
+    border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); color: var(--ink);
+  }
+  .ledger input:focus { outline: 2px solid var(--accent); }
+  .ledger td.pos { color: var(--accent); font-weight: 700; }
+  .ledger td.neg { color: var(--trap); font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">
+    <span>Lesson 0001 · Data Analysis from First Principles</span>
+    <span><a href="../reference/metric-identities.html">cheat sheet</a> · <a href="../reference/notation-decoder.html">notation decoder</a> · <a href="../reference/glossary.html">glossary</a></span>
+  </div>
+
+  <h1>The Metric Ledger</h1>
+  <p class="dek">Every revenue metric is a ratio of four counters — so every revenue story must live in a leg you can name.</p>
+
+  <div class="win"><span class="label">The win</span>
+  By the end (~10 min): given any metric claim, you can decompose it into legs and say
+  <em>which leg the story lives in</em> and <em>whether the claimed cause can even reach that leg</em> — unaided.</div>
+
+  <h2><span class="no">01</span>There are only four facts</h2>
+  <p>Strip away every dashboard and an ecommerce arm produces exactly four primitive numbers per period.
+  We give each a single-letter symbol, because we'll be writing them constantly:</p>
+
+  <pre class="formula"><span class="hl">V</span> = <b>V</b>isits    <span class="hl">O</span> = <b>O</b>rders    <span class="hl">U</span> = <b>U</b>nits    <span class="hl">D</span> = <b>D</b>emand ($)</pre>
+
+  <p>As a TS decoder, that's the whole data model:</p>
+
+  <pre class="ts"><code>type Arm = {
+  V: number;   // visits — sessions
+  O: number;   // orders — checkouts
+  U: number;   // units  — items across all orders
+  D: number;   // demand — dollars across all orders
+};</code></pre>
+
+  <p>Everything else is a <strong>ratio of these</strong> — not new facts about the world, just views
+  over the same four counters:</p>
+
+  <pre class="formula"><span class="hl">CVR</span> = O/V    <span class="dim"><b>C</b>on<b>V</b>ersion <b>R</b>ate       = Orders ÷ Visits   — how often a visit buys</span>
+<span class="hl">AOV</span> = D/O    <span class="dim"><b>A</b>verage <b>O</b>rder <b>V</b>alue   = Demand ÷ Orders   — how big an order is</span>
+<span class="hl">UPT</span> = U/O    <span class="dim"><b>U</b>nits <b>P</b>er <b>T</b>ransaction = Units  ÷ Orders   — items per basket</span>
+<span class="hl">AUR</span> = D/U    <span class="dim"><b>A</b>verage <b>U</b>nit <b>R</b>etail   = Demand ÷ Units    — price per item</span>
+<span class="hl">RPV</span> = D/V    <span class="dim"><b>R</b>evenue <b>P</b>er <b>V</b>isit     = Demand ÷ Visits   — the headline</span></pre>
+
+  <pre class="ts"><code>// the same five lines, decoded:
+const cvr = (a: Arm) => a.O / a.V;  // how often a visit buys
+const aov = (a: Arm) => a.D / a.O;  // how big an order is
+const upt = (a: Arm) => a.U / a.O;  // items per basket
+const aur = (a: Arm) => a.D / a.U;  // price per item
+const rpv = (a: Arm) => a.D / a.V;  // the headline</code></pre>
+
+  <p>A ratio can move for numerator reasons or denominator reasons — dashboards never tell you which.
+  Keeping the counters visible in the notation is what protects you.</p>
+
+  <h2><span class="no">02</span>The tree (it's algebra, not a model)</h2>
+  <p>Multiply CVR by AOV and watch O cancel:</p>
+
+  <pre class="formula">           O     D     D
+CVR·AOV = ─── · ─── = ───  =  RPV        so   <span class="hl">RPV ≡ CVR · AOV</span>
+           V     O     V
+<span class="dim"><b>R</b>evenue <b>P</b>er <b>V</b>isit ≡ <b>C</b>on<b>V</b>ersion <b>R</b>ate × <b>A</b>verage <b>O</b>rder <b>V</b>alue</span></pre>
+
+  <p>The triple bar <a href="../reference/notation-decoder.html#approx">≡</a> means "identical by
+  construction" — this is cancellation, not a model, and it cannot be wrong. The same move on U
+  gives AOV ≡ UPT · AUR, so the full tree is:</p>
+
+  <pre class="formula"><span class="hl">RPV ≡ CVR · UPT · AUR</span>          (D/V ≡ O/V · U/O · D/U — everything cancels)
+<span class="dim"><b>R</b>evenue <b>P</b>er <b>V</b>isit ≡ <b>C</b>on<b>V</b>ersion <b>R</b>ate × <b>U</b>nits <b>P</b>er <b>T</b>ransaction × <b>A</b>verage <b>U</b>nit <b>R</b>etail</span></pre>
+
+  <p>Lifts (<a href="../reference/notation-decoder.html#lift">ℓ = T/C − 1</a>) inherit the identity,
+  but multiplicatively — this is the form you'll use daily:</p>
+
+  <pre class="formula">(1 + ℓ<sub>RPV</sub>) = (1 + ℓ<sub>CVR</sub>) · (1 + ℓ<sub>AOV</sub>)
+<span class="dim">(1 + <b>R</b>evenue-<b>P</b>er-<b>V</b>isit lift) = (1 + <b>C</b>on<b>V</b>ersion-<b>R</b>ate lift) × (1 + <b>A</b>verage-<b>O</b>rder-<b>V</b>alue lift)</span></pre>
+
+  <p>Multiplicatively — not additively. +10% conversion and −10% order size is <strong>−1%</strong>, not
+  zero. RPV is the <em>area</em> of a rectangle (width AOV × height CVR); watch the area through the
+  two moves — the key piece only exists <em>between</em> the steps:</p>
+
+  <pre class="tree">
+STEP 0 · start               STEP 1 · CVR +10%            STEP 2 · AOV −10%
+                             (grow the height)            (shave 10% of the width — of EVERYTHING)
+
+    1.0                          1.0                          0.9     0.1
+┌──────────┐                ┌──────────┐                 ┌─────────┬───┐
+│          │                │  +0.10   │ ← gained strip  │  +0.09  │<span class="hl">▓▓▓</span>│ ← strip keeps 0.09, loses
+│   1.00   │                ├──────────┤                 ├─────────┤<span class="hl">▓▓▓</span>│   <span class="hl">▓0.01 = THE CORNER</span>
+│          │                │          │                 │         │<span class="hl">▓▓▓</span>│
+└──────────┘                │   1.00   │                 │  0.90   │<span class="hl">▓▓▓</span>│ ← body loses 0.10
+                            │          │                 │         │<span class="hl">▓▓▓</span>│
+area = 1.00                 └──────────┘                 └─────────┴───┘
+                            area = 1.10                  kept: 0.90 + 0.09 = <span class="hl">0.99</span>
+                            gain = +0.10                 removed: 0.10 + ▓0.01 = 0.11
+<span class="dim">(1+a)(1+b) = 1 + a + b + ab — the corner ab is the overlap of the gain and the loss</span></pre>
+
+  <p>The corner was never part of the original — it's a piece of the <em>gain</em>, alive for exactly
+  one step: the +10% strip you won spans the full width, and the −10% shave removes 10% of
+  <em>everything that now exists</em>, the new strip's right end included. Born in step 1, destroyed
+  in step 2. In shopper terms: the 11th order you won also got its value cut — the corner is that
+  order's haircut. Gained +0.10, lost −0.11, net −0.01, in either order of operations.</p>
+
+  <p>The corner grows with the square: ±10% → −1%, ±50% → −25%, +100%/−100% → −100% (double the
+  orders, price them at zero). Same reason a stock that loses 50% needs <em>+100%</em> to get home.</p>
+
+  <pre class="ts"><code>// decoder: the identity, as an assertion that always passes
+const closeTo = (a: number, b: number) => Math.abs(a - b) < 1e-9;
+closeTo(rpv(arm), cvr(arm) * upt(arm) * aur(arm)); // true for ANY arm</code></pre>
+
+  <p>There is no dollar that can move RPV without moving a leg. That's the ledger principle, and it's
+  the first move on any revenue claim: <strong>decompose, then ask which leg moved.</strong></p>
+
+  <h2><span class="no">03</span>Which leg can a cause even reach?</h2>
+  <p>Legs differ in <em>what kind of thing</em> they are. CVR is <strong>behavior</strong> — people deciding
+  to buy or leave. AUR and UPT are <strong>mix</strong> — what and how much they put in the basket.
+  A claimed cause must have a path to the leg that moved:</p>
+
+  <div class="tablewrap"><table>
+    <tr><th>Cause</th><th>Can reach</th><th>Cannot reach</th></tr>
+    <tr><td>Page speed</td><td>CVR (people leave)</td><td>AOV / UPT / AUR</td></tr>
+    <tr><td>Rec model</td><td>CVR, UPT, AUR</td><td>—</td></tr>
+    <tr><td>One whale order</td><td>AOV (as noise)</td><td>CVR</td></tr>
+  </table></div>
+
+  <div class="trapbox"><span class="label">Trap</span>
+  Diagnosing from RPV directly. RPV inherits the noise of every leg at once, making it the
+  <em>least</em> readable series on the dashboard — yet it's the one stakeholders watch.
+  The decomposition is how you turn their question into an answerable one.</div>
+
+  <h2><span class="no">04</span>Worked example — a real day</h2>
+  <p>Talbots desktop, Aug 24 2026 — the worst "RPV dip" day. Raw counters, straight from Adobe:</p>
+
+  <div class="tablewrap"><table>
+    <tr><th></th><th>visits</th><th>orders</th><th>units</th><th>demand</th></tr>
+    <tr><td>Control</td><td>354</td><td>10</td><td>38</td><td>$2,527.34</td></tr>
+    <tr><td>Test</td><td>331</td><td>16</td><td>28</td><td>$1,766.39</td></tr>
+  </table></div>
+
+  <p>Before revealing: compute (mentally or on paper) each arm's CVR, AOV, UPT — then the RPV lift.</p>
+
+  <details><summary>reveal the decomposition</summary>
+    <div class="tablewrap"><table>
+      <tr><th></th><th>CVR</th><th>AOV</th><th>UPT</th><th>AUR</th><th>RPV</th></tr>
+      <tr><td>Control</td><td>2.82%</td><td>$252.73</td><td>3.80</td><td>$66.51</td><td>$7.14</td></tr>
+      <tr><td>Test</td><td>4.83%</td><td>$110.40</td><td>1.75</td><td>$63.09</td><td>$5.34</td></tr>
+      <tr><td>Lift</td><td class="pos">+71%</td><td class="neg">−56%</td><td class="neg">−54%</td><td>−5%</td><td class="neg">−25%</td></tr>
+    </table></div>
+    <p>The headline said "test lost 25% of revenue." The ledger says: test converted <em>+71% better</em>
+    and lost everything in AOV — specifically UPT, because control's 10 orders somehow contained 38 units
+    (3.8 items per basket, on ten orders). That's not a treatment effect; that's a couple of whale baskets
+    landing in the control bucket. Any latency story is dead on arrival: latency has no path to UPT.</p>
+  </details>
+
+  <h3>…or drive the ledger yourself</h3>
+  <p>The same day, live. Edit any counter and watch every metric recompute — try giving control an
+  extra $1,500 order (orders 10→11, demand +1500) and watch AOV absorb the whale while CVR barely moves:</p>
+  <div class="ledger" id="ledger"></div>
+
+  <h2><span class="no">05</span>Check yourself</h2>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="say"><span class="label">How you'd say it to a stakeholder</span>
+  <q>Revenue-per-visit is conversion times order size. On the bad days, more of our visitors bought,
+  not fewer — the entire dip came from a handful of unusually large orders landing on the other side.
+  That's like a casino having a losing night because one player hit a jackpot: it tells you about the
+  player, not the casino.</q></div>
+
+  <h2><span class="no">06</span>Go deeper</h2>
+  <p><strong>Primary source:</strong> Kohavi, Tang &amp; Xu, <em>Trustworthy Online Controlled Experiments</em> —
+  <a href="https://experimentguide.com/wp-content/uploads/TrustworthyOnlineControlledExperiments_PracticalGuideToABTesting_Chapter1.pdf">Chapter 1 is free (PDF)</a>;
+  read it for how the pros pick and decompose metrics (<a href="https://experimentguide.com/">book site</a>).</p>
+
+  <p class="note">Stuck or curious about anything here? Ask your teacher (the agent) — that's what it's for.
+  Good follow-ups: "why is cart-add not derivable from the four counters?", "does the identity survive
+  averaging across days?" (careful — it doesn't, that's lesson 3).</p>
+
+  <div class="foot">
+    <span>Reference: <a href="../reference/metric-identities.html">the identity tree</a> ·
+    <a href="../reference/glossary.html">glossary</a></span>
+    <div class="nav">
+      <span>Lesson 0001</span>
+      <span>Next: <a href="0002-counting-noise.html">0002 · Counting Noise — why 10 orders can't tell you anything</a></span>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/manifest.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/quiz.js"></script>
+<script>
+// ---- live ledger: edit the four counters, watch every metric recompute ----
+(function () {
+  const L = { // Aug 24 desktop, prefilled
+    C: { V: 354, O: 10, U: 38, D: 2527.34 },
+    T: { V: 331, O: 16, U: 28, D: 1766.39 },
+  };
+  const root = document.getElementById("ledger");
+  const counters = [["V", "Visits"], ["O", "Orders"], ["U", "Units"], ["D", "Demand ($)"]];
+  const metrics = [
+    ["CVR", a => a.O / a.V, v => (v * 100).toFixed(2) + "%"],
+    ["AOV", a => a.D / a.O, v => "$" + v.toFixed(2)],
+    ["UPT", a => a.U / a.O, v => v.toFixed(2)],
+    ["AUR", a => a.D / a.U, v => "$" + v.toFixed(2)],
+    ["RPV", a => a.D / a.V, v => "$" + v.toFixed(2)],
+  ];
+
+  let html = '<div class="tablewrap"><table><tr><th>counter</th><th>Control</th><th>Test</th></tr>';
+  for (const [k, label] of counters) {
+    html += `<tr><td>${k} — ${label}</td>` +
+      `<td><input id="C${k}" type="number" step="any" value="${L.C[k]}"></td>` +
+      `<td><input id="T${k}" type="number" step="any" value="${L.T[k]}"></td></tr>`;
+  }
+  html += '</table></div><div class="tablewrap"><table><tr><th>metric</th><th>Control</th><th>Test</th><th>lift</th></tr>';
+  for (const [name] of metrics) {
+    html += `<tr><td>${name}</td><td id="mC${name}"></td><td id="mT${name}"></td><td id="mL${name}"></td></tr>`;
+  }
+  html += "</table></div>";
+  root.innerHTML = html;
+
+  function recompute() {
+    for (const arm of ["C", "T"])
+      for (const [k] of counters)
+        L[arm][k] = parseFloat(document.getElementById(arm + k).value) || 0;
+    for (const [name, fn, fmt] of metrics) {
+      const c = fn(L.C), t = fn(L.T);
+      const lift = c ? t / c - 1 : 0;
+      document.getElementById("mC" + name).textContent = isFinite(c) ? fmt(c) : "—";
+      document.getElementById("mT" + name).textContent = isFinite(t) ? fmt(t) : "—";
+      const cell = document.getElementById("mL" + name);
+      cell.textContent = isFinite(lift) ? (lift >= 0 ? "+" : "") + (lift * 100).toFixed(1) + "%" : "—";
+      cell.className = lift > 0 ? "pos" : lift < 0 ? "neg" : "";
+    }
+  }
+  root.addEventListener("input", recompute);
+  recompute();
+})();
+</script>
+<script>
+renderQuiz(document.getElementById("quiz"), [
+  {
+    q: "Test RPV fell 20% this week while control rose. Your first move?",
+    choices: [
+      "Compare the raw demand",
+      "Decompose both into legs",
+      "Check the alert history",
+      "Rerun the whole test",
+    ],
+    answer: 1,
+    explain: "The ledger principle: no dollar moves RPV except through a leg. Decompose, then ask which leg moved — every other move is guessing.",
+  },
+  {
+    q: "Claim: “slow pages made orders smaller.” Which leg is that, and does the cause have a path to it?",
+    choices: [
+      "AOV — no path",
+      "CVR — no path",
+      "AOV — has path",
+      "CVR — has path",
+    ],
+    answer: 0,
+    explain: "Order size is AOV. Latency acts before purchase decisions, through funnel exits — that's CVR. It has no mechanism to shrink the orders that still happen.",
+  },
+  {
+    q: "Which metric is NOT computable from the four counters (visits, orders, units, demand)?",
+    choices: [
+      "Conversion rate",
+      "Units per order",
+      "Cart-add rate",
+      "Revenue per visit",
+    ],
+    answer: 2,
+    explain: "Cart-add needs a fifth counter (cart events). It's not in the RPV identity at all — it's an upstream funnel diagnostic, which is exactly what makes it useful for mechanism checks.",
+  },
+  {
+    q: "AOV equals…",
+    choices: [
+      "AUR × UPT",
+      "CVR × RPV",
+      "UPT ÷ AUR",
+      "RPV × AUR",
+    ],
+    answer: 0,
+    explain: "demand/orders = (demand/units) × (units/orders). Item price times basket size.",
+  },
+  {
+    q: "Test CVR 3.6%, control CVR 3.0%. The CVR lift is…",
+    choices: [
+      "+0.6%",
+      "+17%",
+      "+20%",
+      "+83%",
+    ],
+    answer: 2,
+    explain: "Lift = test ÷ control − 1 = 3.6/3.0 − 1 = +20%. (+0.6 is the percentage-POINT gap — saying “percent” when you mean “points” is a classic stakeholder confusion.)",
+  },
+]);
+</script>
+</body>
+</html>

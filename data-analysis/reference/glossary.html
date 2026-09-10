@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glossary — Data Analysis from First Principles</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  dl { margin: 0; }
+  dt { font-weight: 700; margin-top: 1.1rem; }
+  dt code { font-weight: 400; }
+  dd { margin: 0.15rem 0 0 0; font-size: 0.95rem; }
+  dd .also { color: var(--muted); font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow"><span>Reference · Glossary</span><span><a href="metric-identities.html">metric identities →</a></span></div>
+  <h1>Glossary</h1>
+  <p class="dek">The course's shared vocabulary. Every lesson uses these terms exactly as defined here.</p>
+
+  <h2>The four counters (primitive facts)</h2>
+  <dl>
+    <dt id="visit">Visit</dt>
+    <dd>One session by one person in one arm. The denominator of everything "per visit".</dd>
+    <dt id="order">Order</dt>
+    <dd>One completed purchase (one checkout). A visit has 0 or 1+ orders.</dd>
+    <dt id="unit">Unit</dt>
+    <dd>One item inside an order. An order has 1+ units.</dd>
+    <dt id="demand">Demand</dt>
+    <dd>Dollars of gross order value. The only counter measured in money. <span class="also">(Adobe's term; elsewhere "revenue" or "GMV".)</span></dd>
+  </dl>
+
+  <h2>The ratio metrics (derived, never primitive)</h2>
+  <dl>
+    <dt id="cvr">CVR — <b>C</b>on<b>V</b>ersion <b>R</b>ate</dt>
+    <dd><code>orders ÷ visits</code>. "How often does a visit buy?" A <em>behavior</em> metric.</dd>
+    <dt id="aov">AOV — <b>A</b>verage <b>O</b>rder <b>V</b>alue</dt>
+    <dd><code>demand ÷ orders</code>. "How big is an order?" A <em>mix</em> metric, whale-dominated at small n.</dd>
+    <dt id="upt">UPT — <b>U</b>nits <b>P</b>er <b>T</b>ransaction</dt>
+    <dd><code>units ÷ orders</code>. "How many items per basket?"</dd>
+    <dt id="aur">AUR — <b>A</b>verage <b>U</b>nit <b>R</b>etail</dt>
+    <dd><code>demand ÷ units</code>. "What does one item cost?"</dd>
+    <dt id="rpv">RPV — <b>R</b>evenue <b>P</b>er <b>V</b>isit</dt>
+    <dd><code>demand ÷ visits</code>. The headline metric. Identity: <code>RPV = CVR × AOV = CVR × UPT × AUR</code>.</dd>
+    <dt id="cartadd">Cart-add rate</dt>
+    <dd><code>cart-adding visits ÷ visits</code>. Needs a fifth counter (cart events) — <em>not</em> derivable from the four. The funnel gate upstream of orders.</dd>
+  </dl>
+
+  <h2>Experiment terms</h2>
+  <dl>
+    <dt id="arm">Arm</dt>
+    <dd>One of the randomized groups: <strong>control</strong> (existing experience) or <strong>test/treatment</strong> (new experience).</dd>
+    <dt id="lift">Lift</dt>
+    <dd><code>test ÷ control − 1</code>, as a percentage. Read lift, never one arm's raw trend — shared shocks (promos, traffic mix) cancel in the ratio.</dd>
+    <dt id="pp">Percentage point (pp)</dt>
+    <dd>An <em>absolute</em> move of a rate: CVR 2.0% → 2.5% is +0.5pp (which is +25% <em>relative</em>). Saying a bare "%" for a rate's move is fifty-fold ambiguous — always disambiguate.</dd>
+    <dt id="logpoints">Log points</dt>
+    <dd><code>log(1+ℓ)</code> — lift measured in log space, where undoing = negating and compounding = adding. ≈ the percentage for small lifts.</dd>
+    <dt id="geomean">Geometric mean</dt>
+    <dd>The mean taken in log space: <code>exp(mean(log xᵢ))</code>. The honest average for ratios and lifts; the arithmetic mean of ratios is biased upward.</dd>
+    <dt id="pooled">Pooled metric</dt>
+    <dd>A period ratio computed as <code>sum(numerator) ÷ sum(denominator)</code> — volume-weighted. Opposed to averaging daily ratios, which lets tiny days vote equally.</dd>
+  </dl>
+
+  <h2>Noise terms</h2>
+  <dl>
+    <dt id="whale">Whale</dt>
+    <dd>A single extreme order that dominates an average. The reason daily AOV at ~10 orders/arm is unreadable.</dd>
+    <dt id="heavytail">Heavy tail</dt>
+    <dd>A distribution where rare huge values carry a big share of the total (order values, latencies). Means mislead; medians and pooling resist.</dd>
+    <dt id="p50">Median (p50)</dt>
+    <dd>The middle value: half above, half below. Ignores outlier magnitude entirely — the default summary for heavy-tailed data.</dd>
+    <dt id="se">Standard error (SE)</dt>
+    <dd>The standard deviation of an <em>estimate</em>: how much p̂ or x̄ would wobble across identical repeats. For a rate: <code>SE(p̂) = √(p(1−p)/n)</code>. Shrinks with √n.</dd>
+    <dt id="binomial">Binomial</dt>
+    <dd>The distribution of a count of successes in n independent yes/no trials: <code>O ~ Binomial(V, p)</code>. Daily orders are a binomial draw even when true CVR never changes.</dd>
+    <dt id="rootcount">√-count rule</dt>
+    <dd>A count of rare events wobbles by about its own square root: <code>O ± √O</code>, so relative noise ≈ <code>1/√O</code>. Ten orders is a ±32% instrument.</dd>
+    <dt id="lognormal">Log-normal</dt>
+    <dd>A heavy-tailed distribution where <code>log X</code> is bell-shaped — the standard model for money-like data. Median &lt; mean; rare huge values carry a big share of the total.</dd>
+    <dt id="breakdown">Breakdown point</dt>
+    <dd>The fraction of data an adversary must corrupt to move a statistic arbitrarily. Mean: 0% (one whale suffices). Median: 50%.</dd>
+    <dt id="capping">Capping (winsorizing)</dt>
+    <dd>Clipping extreme values (e.g. order values at p99) before averaging: a small deliberate bias bought in exchange for a large variance cut. Industry standard for revenue metrics.</dd>
+  </dl>
+
+  <h2>Process traps</h2>
+  <dl>
+    <dt id="rtm">Regression to the mean</dt>
+    <dd>After an extreme reading, the next reading from a stable process is expected at the mean — so anything done at a trough is followed by "improvement" ~<code>Φ(2) ≈ 98%</code> of the time. The engine of superstition loops.</dd>
+    <dt id="tampering">Tampering</dt>
+    <dd>Adjusting a stable process based on individual noisy readings (Deming). Adds variance rather than removing it, and makes the treatment a moving target no experiment can measure.</dd>
+    <dt id="peeking">Peeking</dt>
+    <dd>Checking results repeatedly and stopping at the first significant reading. Inflates the 5% false-alarm rate to ~26%. Legal alternatives: pre-scheduled readouts or sequential bounds.</dd>
+  </dl>
+
+  <p class="foot">Growing document — terms are added the first time a lesson needs them.
+  Lessons: <a href="../lessons/0001-the-metric-ledger.html">0001</a> ·
+  <a href="../lessons/0002-counting-noise.html">0002</a> ·
+  <a href="../lessons/0003-heavy-tails-and-whales.html">0003</a> ·
+  <a href="../lessons/0004-reading-while-running.html">0004</a> ·
+  <a href="../lessons/0005-lifts-ratios-logs.html">0005</a></p>
+</div>
+<script src="../assets/manifest.js"></script>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

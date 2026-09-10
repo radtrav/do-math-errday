@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Analysis from First Principles</title>
+<link rel="stylesheet" href="assets/course.css">
+<style>
+  .lesson-list { list-style: none; padding: 0; margin: 0; }
+  .lesson-list li {
+    border: 1px solid var(--rule); border-radius: 6px; background: #fff;
+    padding: 0.9rem 1.2rem; margin-bottom: 0.8rem;
+  }
+  .lesson-list .no {
+    font-family: var(--mono); font-size: 0.72rem; color: var(--accent);
+    display: block; margin-bottom: 0.2rem; letter-spacing: 0.08em;
+  }
+  .lesson-list a { font-weight: 700; text-decoration: none; font-size: 1.05rem; }
+  .lesson-list .sub { font-size: 0.88rem; color: var(--muted); margin-top: 0.2rem; }
+  .lesson-list li.todo { opacity: 0.55; background: transparent; }
+  .refrow { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .refrow a {
+    border: 1px solid var(--rule); border-radius: 6px; background: #fff;
+    padding: 0.7rem 1rem; text-decoration: none; font-size: 0.92rem; flex: 1 1 12em;
+  }
+  .refrow a span { display: block; font-size: 0.78rem; color: var(--muted); margin-top: 0.15rem; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow"><span>Course home</span><span><a href="../index.html">← do-math-errday</a> · Ty · started 2026-08-27</span></div>
+  <h1>Data Analysis from First Principles</h1>
+  <p class="dek">Math, ecommerce metrics, and the traps — notation-first, TypeScript as the decoder, real Talbots data as the lab.</p>
+
+  <div class="win"><span class="label">The mission</span>
+  Analyze A/B and performance data from fundamentals, draw actionable insights, spot the traps —
+  and explain any of it to a non-technical stakeholder in under two minutes.</div>
+
+  <h2>Lessons</h2>
+  <ol class="lesson-list">
+    <li>
+      <span class="no">0001 · DONE</span>
+      <a href="lessons/0001-the-metric-ledger.html">The Metric Ledger</a>
+      <div class="sub">Four counters, the identity tree (RPV ≡ CVR·UPT·AUR), which leg a cause can even reach.</div>
+    </li>
+    <li>
+      <span class="no">0002 · DONE</span>
+      <a href="lessons/0002-counting-noise.html">Counting Noise</a>
+      <div class="sub">SE(p̂) = √(p(1−p)/n) built in four lines, the 1/√count shortcut, the identical-arms simulator, z as noise-units.</div>
+    </li>
+    <li>
+      <span class="no">0003 · DONE</span>
+      <a href="lessons/0003-heavy-tails-and-whales.html">Heavy Tails &amp; Whales</a>
+      <div class="sub">The mean's 0% breakdown point, backing out the $1,537 whale, median vs capping vs pooling, the whale simulator.</div>
+    </li>
+    <li>
+      <span class="no">0004 · DONE</span>
+      <a href="lessons/0004-reading-while-running.html">Reading While Running</a>
+      <div class="sub">The tampering loop, Φ(2)≈98% placebo success, peeking (5%→26%), the two-lane protocol.</div>
+    </li>
+    <li>
+      <span class="no">0005 · DONE</span>
+      <a href="lessons/0005-lifts-ratios-logs.html">Lifts, Ratios &amp; Logs</a>
+      <div class="sub">Percentages' three sins, the undo rule (reciprocal not negation), log points, the mirror widget, never-average-ratios.</div>
+    </li>
+    <li class="todo">
+      <span class="no">0006+ · ARC</span>
+      Correlation · Permutation tests · p-values &amp; CIs · A/B mechanics · Funnel causality ·
+      Variance decomposition · Diff-in-diff · The trap catalog · Explaining to humans
+      <div class="sub">Order adapts to learning records — see NOTES.md.</div>
+    </li>
+  </ol>
+
+  <h2>Reference (print these)</h2>
+  <div class="refrow">
+    <a href="reference/formula-sheet.html">The Formula Sheet<span>every load-bearing formula + its intuition, backlinked to lessons</span></a>
+    <a href="reference/metric-identities.html">The Metric Identity Tree<span>counters, acronyms letter-by-letter, decomposition recipe</span></a>
+    <a href="reference/notation-decoder.html">The Notation Decoder<span>every symbol ↔ its TypeScript equivalent</span></a>
+    <a href="reference/glossary.html">Glossary<span>the course's fixed vocabulary</span></a>
+  </div>
+
+  <p class="note" style="margin-top:2rem">To continue: tell the agent "next lesson" (it reads
+  <a href="MISSION.md">MISSION.md</a>, <a href="NOTES.md">NOTES.md</a>, and
+  <code>learning-records/</code> to pick up where we left off).</p>
+</div>
+</body>
+</html>

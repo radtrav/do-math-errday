@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 0003 · Heavy Tails &amp; Whales</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .simbar { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .simbar button {
+    font: inherit; font-family: var(--mono); font-size: 0.8rem;
+    background: var(--accent); color: #fff; border: none; border-radius: 4px;
+    padding: 0.5rem 1rem; cursor: pointer;
+  }
+  .simstats { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+  .simgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 1rem 0; }
+  .simday {
+    font-family: var(--mono); font-size: 0.72rem; text-align: center;
+    border: 1px solid var(--rule); border-radius: 3px; padding: 0.45rem 0.2rem; background: #fff;
+  }
+  .simday .d { color: var(--muted); font-size: 0.6rem; display: block; }
+  .simday.pos { background: var(--accent-soft); border-color: var(--accent); }
+  .simday.neg { background: var(--trap-soft); border-color: var(--trap); }
+  .simday.whale { outline: 2px solid var(--trap); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">
+    <span>Lesson 0003 · Data Analysis from First Principles</span>
+    <span><a href="../reference/notation-decoder.html">notation decoder</a> · <a href="../reference/glossary.html">glossary</a></span>
+  </div>
+
+  <h1>Heavy Tails &amp; Whales</h1>
+  <p class="dek">The mean is a democracy where dollars vote instead of orders — and one rich voter can swing any election.</p>
+
+  <div class="win"><span class="label">The win</span>
+  By the end (~10 min): you can tell when an average is lying, back out the whale that moved it,
+  and choose the right defense (median, pooling, capping) — knowing what each one trades away.</div>
+
+  <h2><span class="no">01</span>Two shapes of randomness</h2>
+  <p>Lesson 0002's math quietly assumed data that clusters symmetrically around its mean — bell-shaped,
+  like conversion counts. Money is not shaped like that. Order values are <strong>heavy-tailed</strong>:
+  most orders are modest, but rare huge ones carry a big share of the total dollars.</p>
+
+  <pre class="tree">
+bell (counts, rates):          heavy tail (order values, latencies):
+
+        ▄█▄                        █▄
+       █████                       ███▄
+      ███████                      █████▄▄
+     █████████                     ████████▄▄▄___________
+   ──────┼──────              ──────┼────────────────▲───
+        mean                      median            whales live here
+  mean ≈ median ✓                 mean is PULLED RIGHT by the tail</pre>
+
+  <p>A standard model for money-like data: the log-normal —
+  <code>X ~ LogNormal(μ, σ)</code> just means <code>log X</code> is bell-shaped
+  (the TS decoder is literally <code>Math.exp(mu + sigma * normalDraw())</code>).
+  Drag the tail wider and watch the mean get pulled away from the pinned median — at σ near zero
+  it's a symmetric bell and they agree; at realistic order-value spread they've parted company:</p>
+  <div id="tailshape"></div>
+  <p>With a median order of $85 and realistic spread (σ ≈ 0.8), the <em>mean</em> order is ~$117 and
+  1 in 100 orders exceeds $550. The mean and the typical order stopped being the same thing.</p>
+
+  <h2><span class="no">02</span>Why the mean breaks: every dollar votes</h2>
+  <p>Look at the mean's definition — each observation enters at weight 1/n:</p>
+
+  <pre class="formula">x̄ = (1/n) Σ xᵢ        one order's dollars enter the average at weight 1/n
+<span class="dim">Average Order Value = every order's full dollar amount ÷ order count — no vote is capped</span></pre>
+
+  <p>With n = 10 orders, a single $1,500 order contributes <strong>$150 to AOV all by itself</strong> —
+  more than a typical order's entire value. The mean has a <strong>breakdown point of 0%</strong>:
+  one sufficiently extreme point moves it arbitrarily far.</p>
+
+  <p>Now the real case. Aug 24 desktop control: 10 orders, $2,527.34 demand, AOV $252.73.
+  Back the whale out yourself: if the other 9 orders averaged ~$110 (the test arm's AOV that day),
+  what was order #10?</p>
+
+  <details><summary>reveal the whale</summary>
+    <pre class="formula">whale = 2,527.34 − 9 × 110 ≈ <span class="hl">$1,537</span>
+<span class="dim">one order carried 61% of the arm's entire daily revenue</span></pre>
+    <p>That single basket produced the day's "−25% RPV" headline. No behavior changed anywhere —
+    one shopper had a big cart on the control side. This arithmetic (total − n×typical) is a
+    30-second check worth running on any suspicious AOV day.</p>
+  </details>
+
+  <h2><span class="no">03</span>The median: where orders vote, not dollars</h2>
+  <pre class="formula">median = the middle value: half the orders above, half below
+<span class="dim">breakdown point 50% — you must corrupt half the data to move it arbitrarily; the mean needs one point</span></pre>
+
+  <p>The median answers "what does a <em>typical</em> order look like?" and simply cannot see whale
+  magnitude — a $1,537 order counts exactly as much as a $130 one. This is why our hero-paint metrics
+  are p50s (latency is heavy-tailed too), and why "median order value" is the honest companion to AOV.
+  The trade: the median changes the question. Finance is paid in <em>sums</em>, and sums are
+  whale-inclusive — a metric that ignores whales ignores real revenue. Robust and complete are
+  different virtues; carry both numbers.</p>
+
+  <h2><span class="no">04</span>The defense toolbox</h2>
+  <div class="tablewrap"><table>
+    <tr><th>Defense</th><th>What it does</th><th>What it trades</th></tr>
+    <tr><td><strong>Pool longer windows</strong></td><td>grows n so each whale's weight (1/n) shrinks</td><td>slower answers; still mean-based</td></tr>
+    <tr><td><strong>Median (p50)</strong></td><td>immune to whale magnitude</td><td>answers "typical", not "total dollars"</td></tr>
+    <tr><td><strong>Cap / winsorize</strong></td><td>clip order values at e.g. the 99th percentile before averaging</td><td>small deliberate bias, big variance cut — the industry standard for revenue metrics (Kohavi)</td></tr>
+    <tr><td><strong>Show n beside the metric</strong></td><td>an AOV without its order count is uninterpretable</td><td>nothing — always do this</td></tr>
+  </table></div>
+
+  <div class="trapbox"><span class="label">Trap — the √n law degrades here</span>
+  Lesson 0002's SE math still holds for heavy tails, but the per-order variance it divides by is
+  enormous (order values swing ~±95% each), so convergence is slow and the √-count rule
+  (±1/√O) becomes a <em>floor</em>, not an estimate. That's why the protocol calls its AOV bands
+  "optimistic."</div>
+
+  <h2><span class="no">05</span>Watch identical arms fight over whales</h2>
+  <p>Two arms, same log-normal order machine (median $85), ~10 orders/arm/day, 28 days.
+  The daily "AOV lift" between them, from nothing:</p>
+
+  <div class="simbar">
+    <button id="rerun" type="button">simulate 28 days</button>
+    <span class="simstats" id="simstats"></span>
+  </div>
+  <div class="simgrid" id="simgrid"></div>
+  <p class="note">Outlined cells contain a whale (an order over 4× the median). Notice how often the
+  day's "winner" is just whichever arm caught it — and that sd hovers near the real sheet's ±40%.</p>
+
+  <h2><span class="no">06</span>Check yourself</h2>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="say"><span class="label">How you'd say it to a stakeholder</span>
+  <q>Average order value is like average net worth in a bar: the moment one billionaire walks in,
+  the "average patron" is worth $50 million, and nothing about the bar changed. On a ten-order day,
+  one big basket is that billionaire. That's why I quote the typical order and the month's total —
+  the daily average is the one number that can't be trusted alone.</q></div>
+
+  <h2><span class="no">07</span>Go deeper</h2>
+  <p><strong>Primary source:</strong> Spiegelhalter, <em><a href="https://www.goodreads.com/book/show/43722897-the-art-of-statistics">The Art of Statistics</a></em> —
+  the early chapters on summarizing data are the best plain-language treatment of mean-vs-median and
+  skew. For the capping technique as industry practice, Kohavi et&nbsp;al.
+  (<a href="https://experimentguide.com/">Trustworthy Online Controlled Experiments</a>) on
+  variance reduction for revenue metrics.</p>
+
+  <p class="note">Ask your teacher (the agent) anything unclear. Good follow-ups: "where exactly should
+  we cap — p99? p99.9?", "why does the log-normal keep showing up for money?"</p>
+
+  <div class="foot">
+    <span>New glossary terms: <a href="../reference/glossary.html#lognormal">log-normal</a>,
+    <a href="../reference/glossary.html#breakdown">breakdown point</a>,
+    <a href="../reference/glossary.html#capping">capping</a></span>
+    <div class="nav">
+      <span><a href="0002-counting-noise.html">← 0002 Counting Noise</a></span>
+      <span>Next: <a href="0004-reading-while-running.html">0004 · Reading While Running</a></span>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/manifest.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/quiz.js"></script>
+<script src="../assets/sim.js"></script>
+<script src="../assets/bellcurve.js"></script>
+<script>
+renderTailShape(document.getElementById("tailshape"));
+</script>
+<script>
+// ---- whale simulator: identical log-normal order machines ----
+const MU = Math.log(85), SIGMA = 0.8, ORDERS = 10, DAYS = 28;
+const WHALE = 4 * 85; // an order over 4x the median counts as a whale
+const grid = document.getElementById("simgrid");
+const stats = document.getElementById("simstats");
+
+function armDay() {
+  let total = 0, whale = false;
+  for (let i = 0; i < ORDERS; i++) {
+    const v = logNormalDraw(MU, SIGMA);
+    total += v;
+    if (v > WHALE) whale = true;
+  }
+  return { aov: total / ORDERS, whale };
+}
+
+function run() {
+  grid.innerHTML = "";
+  const lifts = [];
+  for (let d = 1; d <= DAYS; d++) {
+    const c = armDay(), t = armDay();
+    const lift = t.aov / c.aov - 1;
+    lifts.push(lift);
+    const cell = document.createElement("div");
+    cell.className = "simday " + (lift > 0 ? "pos" : "neg") + ((c.whale || t.whale) ? " whale" : "");
+    cell.innerHTML = `<span class="d">day ${d}</span>${fmtPct(lift)}`;
+    grid.appendChild(cell);
+  }
+  stats.textContent =
+    `sd of daily AOV lift: ±${(sd(lifts) * 100).toFixed(0)}%  ·  ` +
+    `range ${fmtPct(Math.min(...lifts))}…${fmtPct(Math.max(...lifts))}  ·  identical machines!`;
+}
+document.getElementById("rerun").addEventListener("click", run);
+run();
+
+// ---- quiz ----
+renderQuiz(document.getElementById("quiz"), [
+  {
+    q: "With 10 orders in the day, a single $1,500 order moves AOV by about…",
+    choices: [
+      "$15",
+      "$150",
+      "$750",
+      "$1,500",
+    ],
+    answer: 1,
+    explain: "Every order enters the mean at weight 1/n. $1,500 × 1/10 = $150 of AOV from one basket — larger than a typical order's whole value.",
+  },
+  {
+    q: "The breakdown point of the mean — the fraction of data one must corrupt to move it arbitrarily — is…",
+    choices: [
+      "0%",
+      "10%",
+      "50%",
+      "99%",
+    ],
+    answer: 0,
+    explain: "One sufficiently extreme point suffices. The median's breakdown point is 50% — that asymmetry is the entire robustness argument.",
+  },
+  {
+    q: "Control AOV $252 on 10 orders vs test AOV $110 on 16 orders. Most likely explanation?",
+    choices: [
+      "a whale in control",
+      "the test lost intent",
+      "a pricing bug shipped",
+      "the model shrank baskets",
+    ],
+    answer: 0,
+    explain: "More orders but fewer dollars-per-order on the test side, with control's mean at 2.3× typical on ten orders — that's the fingerprint of one big control basket, checkable in 30 seconds with total − 9×typical.",
+  },
+  {
+    q: "Capping order values at p99 before averaging buys…",
+    choices: [
+      "less variance, small bias",
+      "less bias, small variance",
+      "a robust median estimate",
+      "an unbiased total revenue",
+    ],
+    answer: 0,
+    explain: "You deliberately accept a small, known bias (clipping the top 1%) in exchange for a large variance reduction — the standard trade for revenue metrics in industry experimentation.",
+  },
+  {
+    q: "The median changes the question being asked because it reports…",
+    choices: [
+      "the typical order's value",
+      "the total revenue earned",
+      "the mean without whales",
+      "the most common value",
+    ],
+    answer: 0,
+    explain: "Half above, half below — 'typical'. It is not revenue (finance is paid in whale-inclusive sums) and it is not the mode. Carry median AND total; they answer different questions.",
+  },
+]);
+</script>
+</body>
+</html>
