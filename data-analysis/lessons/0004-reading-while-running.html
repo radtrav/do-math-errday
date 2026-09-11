@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 0004 · Reading While Running</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .simbar { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .simbar button {
+    font: inherit; font-family: var(--mono); font-size: 0.8rem;
+    background: var(--accent); color: #fff; border: none; border-radius: 4px;
+    padding: 0.5rem 1rem; cursor: pointer;
+  }
+  .simstats { font-family: var(--mono); font-size: 0.82rem; }
+  .simstats .big { color: var(--accent); font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">
+    <span>Lesson 0004 · Data Analysis from First Principles</span>
+    <span><a href="../reference/notation-decoder.html">notation decoder</a> · <a href="../reference/glossary.html">glossary</a></span>
+  </div>
+
+  <h1>Reading While Running</h1>
+  <p class="dek">Why pivoting on daily numbers always <em>feels</em> like it works — and the two-lane protocol that keeps a moving experiment analyzable.</p>
+
+  <div class="win"><span class="label">The win</span>
+  By the end (~10 min): you can recognize the tampering loop in a meeting as it happens, explain why
+  the "fix" was guaranteed to look successful, and name what a legal daily action actually is.</div>
+
+  <h2><span class="no">01</span>The loop</h2>
+  <pre class="tree">
+bad daily number ──▶ pivot (model swap, rollback) ──▶ number recovers ──▶ "the fix worked!"
+       ▲                                                                        │
+       └────────────────── team trusts the loop a little more ◀────────────────┘</pre>
+  <p>Every arrow in that loop is real except the causal one. The recovery was going to happen anyway —
+  and the next section proves it with one line of probability.</p>
+
+  <h2><span class="no">02</span>Regression to the mean, quantified</h2>
+  <p>If days are independent draws around a stable truth, then <em>no matter what today looked like</em>,
+  tomorrow's expectation is just the mean:</p>
+
+  <pre class="formula">E[X<sub>tomorrow</sub> | X<sub>today</sub> = terrible] = μ
+<span class="dim">tomorrow's expected value, given ANY today = the process mean — extremes don't propagate</span></pre>
+
+  <p>So intervene on a 2σ-bad day and ask: what's the chance tomorrow beats today? Tomorrow is a fresh
+  draw; it beats a 2σ-low value whenever it lands above μ−2σ, which the bell curve
+  (<a href="../reference/notation-decoder.html#phi">Φ</a>) prices at:</p>
+
+  <pre class="formula">P(X<sub>next</sub> &gt; μ − 2σ) = Φ(2) ≈ <span class="hl">97.7%</span>
+<span class="dim">a placebo shipped on a very bad day "works" about 98% of the time</span></pre>
+
+  <p>See it on the bell itself — drag the slider to how bad "today" was (in noise units) and watch the
+  green area: everything above today's mark is a tomorrow that "proves the fix worked":</p>
+  <div id="bellphi"></div>
+
+  <p>That is the engine of the loop: <strong>any action taken at a trough gets credited by arithmetic.</strong>
+  Ship a model change, a rollback, or a rubber duck on the worst day of the month, and the metric
+  improves ~98% of the time. Deming demonstrated the harm side too (the funnel experiment): reacting
+  to individual outcomes from a stable process doesn't just fail — your adjustments become a
+  <em>new variance source</em> stacked on the old one. Try it:</p>
+
+  <div class="simbar">
+    <button id="rerun" type="button">ship a placebo on the worst day</button>
+    <span class="simstats" id="simstats"></span>
+  </div>
+  <p class="note" id="simnote"></p>
+
+  <h2><span class="no">03</span>Peeking: checking daily has a price even without pivots</h2>
+  <p>Suppose you never pivot — you just check the dashboard daily and pounce when |z| ≥ 2. The 5%
+  false-alarm guarantee belongs to <em>one look</em>; taking the maximum over many looks is a different
+  (much easier) bar for noise to clear:</p>
+
+  <pre class="formula">one pre-committed look:  P(false alarm) = 5%
+peek continuously &amp; stop at the first |z| ≥ 2:  P ≈ <span class="hl">26%</span>
+<span class="dim">a quarter of A/A tests "find a winner" under continuous peeking (Evan Miller)</span></pre>
+
+  <p>The legal versions: fixed pre-scheduled readouts (our R1), or sequential bounds that spend the 5%
+  across looks (what platforms like Statsig implement). What's never legal: deciding the window after
+  seeing the data — that's the Texas sharpshooter, painting the target around the bullet holes.</p>
+
+  <h2><span class="no">04</span>Tampering's second cost: the moving target</h2>
+  <p>Beyond fake credit, every mid-test pivot damages the measurement itself, twice:</p>
+  <p><strong>The blend problem.</strong> After pivots, "the test arm" is a time-varying sequence
+  (UI-v1 + model-A, then model-B, …). The cumulative lift measures a blend that corresponds to no
+  shippable configuration.</p>
+  <p><strong>The trough-selection problem.</strong> Because pivots trigger on bad reads, the "before"
+  period is systematically a trough — so before/after comparisons around any metric-triggered change
+  are biased toward "it worked" <em>even for a placebo</em> (that's §02 again, wearing analysis
+  clothes). Our own Aug 18 model change carries exactly this bias, which is why we leaned on the
+  untouched device as a control before believing anything.</p>
+
+  <h2><span class="no">05</span>The two-lane protocol</h2>
+  <div class="tablewrap"><table>
+    <tr><th>Lane</th><th>Cadence</th><th>Triggers on</th><th>May do</th></tr>
+    <tr><td><strong>Guardrails</strong></td><td>daily</td><td>breakage only: |z| &gt; 3 CVR crater, error/latency breach, tracking loss</td><td>act same day</td></tr>
+    <tr><td><strong>Decisions</strong></td><td>scheduled readouts</td><td>pooled ≥14d windows, |z| ≥ 2, rule written <em>before</em> looking</td><td>pivot, roll back, ship</td></tr>
+  </table></div>
+  <p>Plus the intervention log: every treatment change recorded before it ships, with its honest trigger
+  ("planned work" vs "metric read") — the column that lets the team audit itself for tampering. The
+  full pre-registered version for ATT-212 lives in the
+  <a href="https://claude.ai/code/artifact/e037cd96-346c-47c3-aa6d-86ca444a924c">experiment protocol</a>.</p>
+
+  <div class="trapbox"><span class="label">Trap — "no time to wait for significance"</span>
+  Detection time scales as 1/effect²: a catastrophe clears |z| ≥ 3 in a day or two; only <em>small</em>
+  losses take weeks — and a loss too small for the statistics to see is too small for the daily
+  dashboard to see. If there isn't enough data for confidence, there isn't enough data to know you're
+  losing. (The revenue-exposure lever that doesn't destroy the test: cut the traffic split.)</div>
+
+  <h2><span class="no">06</span>Check yourself</h2>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="say"><span class="label">How you'd say it to a stakeholder</span>
+  <q>Flight instructors used to swear that praise made pilots worse and scolding made them better —
+  because a great landing is usually followed by a worse one, and a terrible landing by a better one,
+  no matter what anyone says. Our dashboard works the same way: whatever we ship on the worst day will
+  look like a fix. So we act fast on genuine breakage, and for everything else we decide on
+  pre-scheduled pooled readouts, where the improvement has to beat arithmetic, not just yesterday.</q></div>
+
+  <h2><span class="no">07</span>Go deeper</h2>
+  <p><strong>Primary source:</strong> Evan Miller,
+  <a href="https://www.evanmiller.org/how-not-to-run-an-ab-test.html">"How Not To Run an A/B Test"</a> —
+  the peeking essay; short, precise, and the origin of the 26% number. Pair with Kohavi et&nbsp;al.'s
+  Twyman's-law chapter (<a href="https://experimentguide.com/">Trustworthy Online Controlled
+  Experiments</a>): "any figure that looks interesting or different is usually wrong."</p>
+
+  <p class="note">Ask your teacher (the agent) anything unclear. Good follow-ups: "how do sequential
+  bounds actually spend the 5% across looks?", "when is a bandit the honest choice over an A/B test?"</p>
+
+  <div class="foot">
+    <span>New glossary terms: <a href="../reference/glossary.html#rtm">regression to the mean</a>,
+    <a href="../reference/glossary.html#tampering">tampering</a>,
+    <a href="../reference/glossary.html#peeking">peeking</a></span>
+    <div class="nav">
+      <span><a href="0003-heavy-tails-and-whales.html">← 0003 Heavy Tails &amp; Whales</a></span>
+      <span>Next: <a href="0005-lifts-ratios-logs.html">0005 · Lifts, Ratios &amp; Logs</a></span>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/manifest.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/quiz.js"></script>
+<script src="../assets/sim.js"></script>
+<script src="../assets/bellcurve.js"></script>
+<script>
+renderBell(document.getElementById("bellphi"), { mode: "above", init: -2 });
+</script>
+<script>
+// ---- placebo simulator: intervene at the trough of a stable process ----
+let works = 0, trials = 0;
+function run() {
+  // 14 days of a stable metric (normal around 100), find the worst day,
+  // "ship a placebo", observe the next day.
+  const days = Array.from({ length: 14 }, () => 100 + 10 * normalDraw());
+  const worst = Math.min(...days);
+  const next = 100 + 10 * normalDraw();
+  trials += 1;
+  if (next > worst) works += 1;
+  document.getElementById("simstats").innerHTML =
+    `worst of 14 days: ${worst.toFixed(1)} → day after the "fix": ${next.toFixed(1)} ` +
+    `(${next > worst ? "improved ✓" : "worse ✗"}) · placebo success rate so far: ` +
+    `<span class="big">${works}/${trials} = ${(100 * works / trials).toFixed(0)}%</span>`;
+  document.getElementById("simnote").textContent =
+    "The process never changes — every run draws from the same machine. Click until the success " +
+    "rate settles: the placebo 'works' the overwhelming majority of the time, because the worst of " +
+    "14 days is a deep trough and the next day is just a normal day.";
+}
+document.getElementById("rerun").addEventListener("click", run);
+run();
+
+// ---- quiz ----
+renderQuiz(document.getElementById("quiz"), [
+  {
+    q: "A change shipped on a 2σ-bad day is followed by improvement about…",
+    choices: [
+      "50% of the time",
+      "68% of the time",
+      "98% of the time",
+      "26% of the time",
+    ],
+    answer: 2,
+    explain: "Tomorrow is a fresh draw; it beats μ−2σ whenever it lands above it: Φ(2) ≈ 97.7%. Any action taken at a trough gets credited by arithmetic.",
+  },
+  {
+    q: "Checking daily and stopping at the first |z| ≥ 2 inflates the 5% false-alarm rate to roughly…",
+    choices: [
+      "6%",
+      "10%",
+      "26%",
+      "50%",
+    ],
+    answer: 2,
+    explain: "Evan Miller's peeking result: the max over many looks clears the bar far more often than one look. The 5% guarantee belongs to a single pre-committed look.",
+  },
+  {
+    q: "Which is a legal same-day action under the two-lane protocol?",
+    choices: [
+      "responding to a guardrail breach",
+      "swapping the model on AOV",
+      "moving the decision threshold",
+      "redefining the readout window",
+    ],
+    answer: 0,
+    explain: "Breakage (|z| > 3 craters, error/latency breaches, tracking loss) is the daily lane. The other three are either tampering or threshold-gaming after seeing data.",
+  },
+  {
+    q: "A before/after comparison around a metric-triggered pivot is biased because…",
+    choices: [
+      "the pivot began at a trough",
+      "the sample size got smaller",
+      "the metric was heavy tailed",
+      "the arms were never random",
+    ],
+    answer: 0,
+    explain: "You intervene when things look bad, so the 'before' is systematically a low point and the 'after' recovers by regression to the mean — a placebo passes this comparison.",
+  },
+  {
+    q: "\"We're losing in prod, no time to wait for significance\" fails because…",
+    choices: [
+      "big losses reach significance fast",
+      "revenue cannot drop that quickly",
+      "waiting always costs more money",
+      "daily numbers are always correct",
+    ],
+    answer: 0,
+    explain: "Detection time ∝ 1/effect². Catastrophes clear |z|≥3 in days; only small losses take weeks — and those are invisible to the daily dashboard too. Exposure is managed by cutting the traffic split, not by pivoting on noise.",
+  },
+]);
+</script>
+</body>
+</html>
