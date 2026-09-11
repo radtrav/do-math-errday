@@ -86,13 +86,14 @@ CVR·AOV = ─── · ─── = ───  =  RPV        so   <span class="h
   <pre class="formula">(1 + ℓ<sub>RPV</sub>) = (1 + ℓ<sub>CVR</sub>) · (1 + ℓ<sub>AOV</sub>)
 <span class="dim">(1 + <b>R</b>evenue-<b>P</b>er-<b>V</b>isit lift) = (1 + <b>C</b>on<b>V</b>ersion-<b>R</b>ate lift) × (1 + <b>A</b>verage-<b>O</b>rder-<b>V</b>alue lift)</span></pre>
 
-  <p>Multiplicatively — not additively. +10% conversion and −10% order size is <strong>−1%</strong>, not
-  zero. RPV is the <em>area</em> of a rectangle (width AOV × height CVR); watch the area through the
-  two moves — the key piece only exists <em>between</em> the steps:</p>
+  <p>Multiplicatively — not additively. Test converting 10% better than control while writing 10%
+  smaller orders puts test RPV <strong>1% below</strong> control's — not level with it. Control's RPV is
+  the <em>area</em> of a 1 × 1 rectangle (width AOV × height CVR, each scaled so control = 1.00). Build
+  test's rectangle from it in two moves — the key piece only exists <em>between</em> the steps:</p>
 
   <pre class="tree">
-STEP 0 · start               STEP 1 · CVR +10%            STEP 2 · AOV −10%
-                             (grow the height)            (shave 10% of the width — of EVERYTHING)
+STEP 0 · control             STEP 1 · test's CVR (×1.10)  STEP 2 · test's AOV (×0.90)
+(the reference arm)          (grow the height)            (shave 10% of the width — of EVERYTHING)
 
     1.0                          1.0                          0.9     0.1
 ┌──────────┐                ┌──────────┐                 ┌─────────┬───┐
@@ -101,19 +102,29 @@ STEP 0 · start               STEP 1 · CVR +10%            STEP 2 · AOV −10%
 │          │                │          │                 │         │<span class="hl">▓▓▓</span>│
 └──────────┘                │   1.00   │                 │  0.90   │<span class="hl">▓▓▓</span>│ ← body loses 0.10
                             │          │                 │         │<span class="hl">▓▓▓</span>│
-area = 1.00                 └──────────┘                 └─────────┴───┘
-                            area = 1.10                  kept: 0.90 + 0.09 = <span class="hl">0.99</span>
+area = 1.00 · control       └──────────┘                 └─────────┴───┘
+                            area = 1.10                  kept: 0.90 + 0.09 = <span class="hl">0.99</span>  ← test ÷ control
                             gain = +0.10                 removed: 0.10 + ▓0.01 = 0.11
 <span class="dim">(1+a)(1+b) = 1 + a + b + ab — the corner ab is the overlap of the gain and the loss</span></pre>
 
-  <p>The corner was never part of the original — it's a piece of the <em>gain</em>, alive for exactly
-  one step: the +10% strip you won spans the full width, and the −10% shave removes 10% of
+  <p>The steps are construction moves, not days on a calendar: both arms exist at the same moment, and
+  each step applies one arm-vs-arm ratio (test's CVR ÷ control's, then test's AOV ÷ control's). The
+  corner was never part of control's rectangle — it's a piece of the <em>gain</em>, alive for exactly
+  one step: the +10% strip test won spans the full width, and the −10% shave removes 10% of
   <em>everything that now exists</em>, the new strip's right end included. Born in step 1, destroyed
-  in step 2. In shopper terms: the 11th order you won also got its value cut — the corner is that
-  order's haircut. Gained +0.10, lost −0.11, net −0.01, in either order of operations.</p>
+  in step 2. In shopper terms: the extra order test wins also lands in test's smaller basket — the
+  corner is that order's haircut. Gained +0.10, lost −0.11, net −0.01, in either order of operations.</p>
 
-  <p>The corner grows with the square: ±10% → −1%, ±50% → −25%, +100%/−100% → −100% (double the
-  orders, price them at zero). Same reason a stock that loses 50% needs <em>+100%</em> to get home.</p>
+  <p>The corner grows with the square: ±10% → −1%, ±50% → −25%, +100%/−100% → −100% (twice control's
+  orders, priced at zero). The right mental model is a <strong>currency cross rate</strong>, not a stock
+  chart. A lift is an exchange rate between two arms quoted at the same instant — test-per-control —
+  and exchange rates chain by multiplication, the middle unit cancelling:</p>
+
+  <pre class="formula">($ per €) · (¥ per $) = ¥ per €        ⟷        O/V · D/O = D/V
+<span class="dim">the dollars cancel the way orders cancel — forex writes it EUR/USD · USD/JPY = EUR/JPY; rates multiply, never add</span></pre>
+
+  <p>Quote each leg as test-per-control and the chain <em>is</em> the lift identity above:
+  1.10 × 0.90 = 0.99. Nothing "fell" and nothing has to "recover" — two arms, one moment, one ratio.</p>
 
   <pre class="ts"><code>// decoder: the identity, as an assertion that always passes
 const closeTo = (a: number, b: number) => Math.abs(a - b) < 1e-9;
@@ -250,7 +261,7 @@ closeTo(rpv(arm), cvr(arm) * upt(arm) * aur(arm)); // true for ANY arm</code></p
 <script>
 renderQuiz(document.getElementById("quiz"), [
   {
-    q: "Test RPV fell 20% this week while control rose. Your first move?",
+    q: "Test RPV reads −20% against control this week. Your first move?",
     choices: [
       "Compare the raw demand",
       "Decompose both into legs",

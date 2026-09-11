@@ -23,13 +23,16 @@
 
   <h2><span class="no">01</span>Percentages commit three sins</h2>
 
-  <p><strong>Sin 1 — asymmetry.</strong> −10% is not the opposite of +10%. To undo a lift you need its
+  <p><strong>Sin 1 — asymmetry.</strong> −10% is not the opposite of +10%. A lift is a quote between two
+  arms — test-per-control. Quote the same gap from the other side (control-per-test) and you get its
   <em>reciprocal</em>, not its negation:</p>
   <pre class="formula">undo(ℓ) = 1/(1+ℓ) − 1
-<span class="dim">the lift that exactly reverses ℓ = one over (one plus ℓ), minus one</span>
+<span class="dim">the same gap quoted from the other arm = one over (one plus ℓ), minus one — the lift that exactly reverses ℓ</span>
 
 undo(−10%) = 1/0.9 − 1 = <span class="hl">+11.1%</span>        undo(−50%) = 1/0.5 − 1 = <span class="hl">+100%</span></pre>
-  <p>Down moves are always bigger than the same-numbered up move — a stock that loses half needs to double.</p>
+  <p>Down moves are always bigger than the same-numbered up move. Think currency pair, not stock chart:
+  if test/control reads 0.50, control/test reads 2.00 — flip the quote and −50% becomes +100%. Same
+  gap, two sides, one moment; nothing had to "recover".</p>
 
   <p><strong>Sin 2 — fake addition.</strong> Lifts compound multiplicatively (lesson 0001's rectangle:
   the corner term ab). +10% and −10% net −1%, and the error grows with the square of the moves.</p>
@@ -57,7 +60,7 @@ log(1+x) ≈ x  (small x)
 
   <h2><span class="no">03</span>The mirror — drag a lift, see both spaces</h2>
   <p>Top axis: percent space. Bottom axis: log space. The green dot is your lift, the red dot is the
-  lift that exactly undoes it. In percent space the pair sits lopsided; in log space they are always
+  same gap quoted from the other arm — the lift that exactly undoes it. In percent space the pair sits lopsided; in log space they are always
   perfect mirror images around zero. Drag through +100% and watch its undo pin to −50%:</p>
   <div id="mirror"></div>
 
